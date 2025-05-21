@@ -7,18 +7,6 @@
 
     tools:context=".ui.medicine.MedicineMenuFragment">
 
-    <!-- Логотип (для вызова справки) -->
-    <ImageView
-        android:id="@+id/image_logo"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
-        android:layout_margin="16dp"
-        android:contentDescription="App Logo"
-        android:padding="8dp"
-        android:src="@drawable/ic_logo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <!-- RecyclerView для списка лекарств -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_medicine_list"
@@ -26,19 +14,10 @@
         android:layout_height="0dp"
         android:padding="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/image_logo"
-        app:layout_constraintBottom_toTopOf="@id/fab_add_medicine"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- FAB для добавления лекарства -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_medicine"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="Добавить лекарство"
-        android:src="@drawable/ic_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
