@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">PillReminderApp</string>
     <string name="title_home">Home</string>
-    <string name="title_pills">Pills</string>
+    <string name="title_medicine">Medicine</string>
 </resources>

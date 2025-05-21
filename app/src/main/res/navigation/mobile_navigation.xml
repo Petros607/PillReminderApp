@@ -12,9 +12,70 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_pills"
-        android:name="com.example.pillreminderapp.ui.pills.PillsFragment"
-        android:label="@string/title_pills"
-        tools:layout="@layout/fragment_pills" />
+        android:id="@+id/navigation_medicine"
+        android:name="com.example.pillreminderapp.ui.medicine.MedicineMenuFragment"
+        android:label="@string/title_medicine"
+        tools:layout="@layout/fragment_medicine_menu" >
+
+<!--        &lt;!&ndash; Переход к добавлению лекарства &ndash;&gt;-->
+<!--        <action-->
+<!--            android:id="@+id/action_medicineMenu_to_addMedicineFragment"-->
+<!--            app:destination="@id/addMedicineFragment" />-->
+
+<!--        &lt;!&ndash; Переход к деталям лекарства &ndash;&gt;-->
+<!--        <action-->
+<!--            android:id="@+id/action_medicineMenu_to_medicineDetailFragment"-->
+<!--            app:destination="@id/medicineDetailFragment">-->
+<!--            <argument-->
+<!--                android:name="medicineId"-->
+<!--                app:argType="long" />-->
+<!--        </action>-->
+
+<!--        &lt;!&ndash; Переход к списку напоминаний &ndash;&gt;-->
+<!--        <action-->
+<!--            android:id="@+id/action_medicineMenu_to_reminderListFragment"-->
+<!--            app:destination="@id/reminderListFragment">-->
+<!--            <argument-->
+<!--                android:name="medicineId"-->
+<!--                app:argType="long" />-->
+<!--        </action>-->
+
+<!--        &lt;!&ndash; Переход к справке &ndash;&gt;-->
+<!--        <action-->
+<!--            android:id="@+id/action_medicineMenu_to_helpFragment"-->
+<!--            app:destination="@id/helpFragment" />-->
+    </fragment>
+
+<!--    <fragment-->
+<!--        android:id="@+id/addMedicineFragment"-->
+<!--        android:name="com.example.pillreminderapp.ui.medicine.AddMedicineFragment"-->
+<!--        android:label="Добавление лекарства"-->
+<!--        tools:layout="@layout/fragment_add_medicine" />-->
+
+<!--    <fragment-->
+<!--        android:id="@+id/medicineDetailFragment"-->
+<!--        android:name="com.example.pillreminderapp.ui.medicine.MedicineDetailFragment"-->
+<!--        android:label="Инфо о лекарстве"-->
+<!--        tools:layout="@layout/fragment_medicine_detail">-->
+<!--        <argument-->
+<!--            android:name="medicineId"-->
+<!--            app:argType="long" />-->
+<!--    </fragment>-->
+
+<!--    <fragment-->
+<!--        android:id="@+id/reminderListFragment"-->
+<!--        android:name="com.example.pillreminderapp.ui.reminder.ReminderListFragment"-->
+<!--        android:label="Напоминания"-->
+<!--        tools:layout="@layout/fragment_reminder_list">-->
+<!--        <argument-->
+<!--            android:name="medicineId"-->
+<!--            app:argType="long" />-->
+<!--    </fragment>-->
+
+<!--    <fragment-->
+<!--        android:id="@+id/helpFragment"-->
+<!--        android:name="com.example.pillreminderapp.ui.HelpFragment"-->
+<!--        android:label="Справка"-->
+<!--        tools:layout="@layout/fragment_help" />-->
 
 </navigation>
