@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.pillreminderapp.R
 import com.example.pillreminderapp.databinding.FragmentMedicineMenuBinding
@@ -36,21 +37,12 @@ class MedicineMenuFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val fab = view.findViewById<FloatingActionButton>(R.id.fab_add_medicine)
-        if (fab == null) {
-            Log.e("FAB", "FAB не найден!")
-        } else {
-            Log.d("FAB", "FAB найден!")
-            fab.setOnClickListener {
-                Log.d("FAB", "FAB clicked")
-                showAddMedicineDialog()
-            }
-        }
-
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = MedicineAdapter(listOf())
-        binding.rvMedicineList.adapter = adapter
+        val fab = view.findViewById<FloatingActionButton>(R.id.fab_add_medicine)
+        fab?.setOnClickListener {
+            showAddMedicineDialog()
+        }
 
         loadMedicines()
 
@@ -63,7 +55,10 @@ class MedicineMenuFragment : Fragment() {
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(requireContext())
             val medicines = db.medicineDao().getAll()
-            adapter = MedicineAdapter(medicines)
+            adapter = MedicineAdapter(medicines) { selectedMedicine ->
+                // TODO: открыть подробную информацию (например, диалог или другой фрагмент)
+                Toast.makeText(requireContext(), "Нажато: ${selectedMedicine.name}", Toast.LENGTH_SHORT).show()
+            }
             binding.rvMedicineList.adapter = adapter
         }
     }

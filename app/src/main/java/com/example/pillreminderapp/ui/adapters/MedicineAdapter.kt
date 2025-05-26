@@ -50,15 +50,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pillreminderapp.databinding.ItemMedicineBinding
 import com.example.pillreminderapp.db.entities.Medicine
 
-class MedicineAdapter(private val medicines: List<Medicine>) :
-    RecyclerView.Adapter<MedicineAdapter.MedicineViewHolder>() {
+class MedicineAdapter(private val medicines: List<Medicine>,
+                      private val onClick: (Medicine) -> Unit
+) : RecyclerView.Adapter<MedicineAdapter.MedicineViewHolder>() {
 
     class MedicineViewHolder(private val binding: ItemMedicineBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(medicine: Medicine) {
             binding.tvMedicineName.text = medicine.name
-            binding.tvMedicineSubstance.text = "Вещество: ${medicine.substance}"
+//            binding.tvMedicineSubstance.text = "Вещество: ${medicine.substance}"
             binding.tvMedicineFirm.text = "Производитель: ${medicine.manufacturer}"
             binding.tvMedicineForm.text = "Форма: ${medicine.dosageForm}"
         }
@@ -71,7 +72,9 @@ class MedicineAdapter(private val medicines: List<Medicine>) :
     }
 
     override fun onBindViewHolder(holder: MedicineViewHolder, position: Int) {
-        holder.bind(medicines[position])
+        val medicine = medicines[position]
+        holder.bind(medicine)
+        holder.itemView.setOnClickListener { onClick(medicine) }
     }
 
     override fun getItemCount() = medicines.size
