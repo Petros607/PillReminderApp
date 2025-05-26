@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/rounded_background"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/et_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Название лекарства" />
+
+    <EditText
+        android:id="@+id/et_active_substance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Активное вещество" />
+
+    <EditText
+        android:id="@+id/et_manufacturer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Фирма изготовитель" />
+
+    <EditText
+        android:id="@+id/et_form"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Форма выпуска" />
+
+    <Button
+        android:id="@+id/btn_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Готово" />
+</LinearLayout>

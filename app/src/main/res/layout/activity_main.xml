@@ -6,13 +6,6 @@
     android:layout_height="match_parent"
     >
 
-    <include
-        android:id="@+id/custom_top_bar"
-        layout="@layout/top_bar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
         android:layout_width="0dp"

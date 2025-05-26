@@ -7,6 +7,13 @@
 
     tools:context=".ui.medicine.MedicineMenuFragment">
 
+    <include
+        android:id="@+id/custom_top_bar_for_medicine"
+        layout="@layout/top_bar_for_medicine"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- RecyclerView для списка лекарств -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_medicine_list"

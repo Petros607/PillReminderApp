@@ -19,11 +19,11 @@
 
         <!-- FAB для добавления лекарства -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_medicine"
+        android:id="@+id/fab_add_reminder"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_margin="12dp"
-        android:contentDescription="Добавить лекарство"
+        android:contentDescription="Добавить напоминание"
         android:src="@drawable/ic_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
