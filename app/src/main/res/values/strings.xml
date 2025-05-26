@@ -3,10 +3,14 @@
     <string name="title_home">Home</string>
     <string name="title_medicine">Medicine</string>
     <string-array name="medicine_forms">
-        <item>Таблетки</item>
-        <item>Капсулы</item>
-        <item>Сироп</item>
+        <item>Таблетка</item>
+        <item>Капсула</item>
+        <item>Процедура</item>
+        <item>Раствор</item>
+        <item>Капля</item>
+        <item>Жидкость</item>
         <item>Мазь</item>
-        <item>Капли</item>
+        <item>Спрей</item>
+        <item>Иное</item>
     </string-array>
 </resources>

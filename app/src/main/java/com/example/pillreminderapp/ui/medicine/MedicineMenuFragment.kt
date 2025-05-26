@@ -10,15 +10,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
 import com.example.pillreminderapp.R
-import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.databinding.FragmentMedicineMenuBinding
-import com.example.pillreminderapp.ui.adapters.MedicineAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.launch
 
 class MedicineMenuFragment : Fragment() {
 
@@ -36,17 +30,21 @@ class MedicineMenuFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val fabAddMedicine = view.findViewById<FloatingActionButton>(R.id.fab_add_medicine)
-
-        fabAddMedicine.setOnClickListener {
-            Log.d("MedicineMenuFragment", "FAB clicked")
-            showAddMedicineDialog()
+        val fab = view.findViewById<FloatingActionButton>(R.id.fab_add_medicine)
+        if (fab == null) {
+            Log.e("FAB", "FAB не найден!")
+        } else {
+            Log.d("FAB", "FAB найден!")
+            fab.setOnClickListener {
+                Log.d("FAB", "FAB clicked")
+                showAddMedicineDialog()
+            }
         }
     }
 
     private fun showAddMedicineDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_medicine, null)
-        val spinner = dialogView.findViewById<Spinner>(R.id.spinner_form)
+        val spinner = dialogView.findViewById<Spinner>(R.id.dialog_add_medicine_spinner_form)
         ArrayAdapter.createFromResource(
             requireContext(),
             R.array.medicine_forms,
@@ -66,11 +64,11 @@ class MedicineMenuFragment : Fragment() {
         dialog.setCanceledOnTouchOutside(true)
 
         // Обработка нажатия кнопки "Готово"
-        dialogView.findViewById<Button>(R.id.btn_save).setOnClickListener {
-            val name = dialogView.findViewById<EditText>(R.id.edit_medicine_name).text.toString()
-            val substance = dialogView.findViewById<EditText>(R.id.edit_active_substance).text.toString()
-            val firm = dialogView.findViewById<EditText>(R.id.edit_firm).text.toString()
-            val form = dialogView.findViewById<Spinner>(R.id.spinner_form).selectedItem.toString()
+        dialogView.findViewById<Button>(R.id.dialog_add_medicine_btn_save).setOnClickListener {
+            val name = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_medicine_name).text.toString()
+            val substance = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_active_substance).text.toString()
+            val firm = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_firm).text.toString()
+            val form = dialogView.findViewById<Spinner>(R.id.dialog_add_medicine_spinner_form).selectedItem.toString()
 
             // TODO: Сохрани в базу данных
 
