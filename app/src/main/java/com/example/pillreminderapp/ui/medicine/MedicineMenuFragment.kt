@@ -3,6 +3,7 @@ package com.example.pillreminderapp.ui.medicine
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -35,9 +36,10 @@ class MedicineMenuFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val fabAddMedicine = requireActivity().findViewById<FloatingActionButton>(R.id.fab_add_medicine)
+        val fabAddMedicine = view.findViewById<FloatingActionButton>(R.id.fab_add_medicine)
 
         fabAddMedicine.setOnClickListener {
+            Log.d("MedicineMenuFragment", "FAB clicked")
             showAddMedicineDialog()
         }
     }
