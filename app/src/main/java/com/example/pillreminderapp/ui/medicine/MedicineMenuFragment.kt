@@ -4,11 +4,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.pillreminderapp.R
@@ -17,9 +13,7 @@ import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.db.entities.DosageForm
 import com.example.pillreminderapp.db.entities.Medicine
 import com.example.pillreminderapp.ui.adapters.MedicineAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
-import android.view.ViewGroup
 
 class MedicineMenuFragment : Fragment() {
 
@@ -39,10 +33,7 @@ class MedicineMenuFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.fabAddMedicine.setOnClickListener {
-            showAddMedicineDialog()
-        }
-
+        binding.fabAddMedicine.setOnClickListener { showMedicineDialog() }
         loadMedicines()
     }
 
@@ -57,13 +48,10 @@ class MedicineMenuFragment : Fragment() {
         }
     }
 
-    private fun showAddMedicineDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_medicine, null)
-        val spinner = dialogView.findViewById<Spinner>(R.id.dialog_add_medicine_spinner_form)
-
-        // Устанавливаем адаптер с локализованными значениями DosageForm
+    // Общий метод для создания адаптера Spinner с локализованными значениями DosageForm
+    private fun createDosageFormAdapter(): ArrayAdapter<DosageForm> {
         val forms = DosageForm.values()
-        val spinnerAdapter = object : ArrayAdapter<DosageForm>(
+        return object : ArrayAdapter<DosageForm>(
             requireContext(),
             android.R.layout.simple_spinner_item,
             forms
@@ -79,9 +67,34 @@ class MedicineMenuFragment : Fragment() {
                 (view as TextView).text = getItem(position)?.getLocalizedName(context)
                 return view
             }
+        }.apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = spinnerAdapter
+    }
+
+    // Показать диалог добавления/редактирования лекарства.
+    // Если medicine == null — добавление, иначе редактирование
+    private fun showMedicineDialog(medicine: Medicine? = null) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_medicine, null)
+
+        val title = dialogView.findViewById<TextView>(R.id.dialog_add_medicine_title)
+        val nameEdit = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_medicine_name)
+        val substanceEdit = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_active_substance)
+        val firmEdit = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_firm)
+        val spinner = dialogView.findViewById<Spinner>(R.id.dialog_add_medicine_spinner_form)
+
+        val adapter = createDosageFormAdapter()
+        spinner.adapter = adapter
+
+        if (medicine == null) {
+            title.text = getString(R.string.add_medicine)
+        } else {
+            title.text = getString(R.string.edit_medicine)
+            nameEdit.setText(medicine.name)
+            substanceEdit.setText(medicine.substance)
+            firmEdit.setText(medicine.manufacturer)
+            spinner.setSelection(DosageForm.values().indexOf(medicine.dosageForm))
+        }
 
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
@@ -91,26 +104,32 @@ class MedicineMenuFragment : Fragment() {
         dialog.setCanceledOnTouchOutside(true)
 
         dialogView.findViewById<Button>(R.id.dialog_add_medicine_btn_save).setOnClickListener {
-            val name = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_medicine_name).text.toString()
-            val substance = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_active_substance).text.toString()
-            val firm = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_firm).text.toString()
-
-            // Получаем выбранный DosageForm напрямую из enum
+            val name = nameEdit.text.toString().trim()
+            val substance = substanceEdit.text.toString().trim()
+            val firm = firmEdit.text.toString().trim()
             val dosageForm = spinner.selectedItem as DosageForm
 
-            val medicine = Medicine(
-                name = name,
-                substance = substance,
-                manufacturer = firm,
-                dosageForm = dosageForm
-            )
+            if (name.isEmpty()) {
+                nameEdit.error = getString(R.string.error_empty_name)
+                return@setOnClickListener
+            }
+
+            val med = if (medicine == null) {
+                Medicine(name = name, substance = substance, manufacturer = firm, dosageForm = dosageForm)
+            } else {
+                medicine.copy(name = name, substance = substance, manufacturer = firm, dosageForm = dosageForm)
+            }
 
             lifecycleScope.launch {
                 val db = AppDatabase.getInstance(requireContext())
-                db.medicineDao().insert(medicine)
+                if (medicine == null) {
+                    db.medicineDao().insert(med)
+                    Log.d("Table medicine", "medicine сохранен!")
+                } else {
+                    db.medicineDao().update(med)
+                }
                 loadMedicines()
             }
-            Log.d("Table medicine", "medicine сохранен!")
             dialog.dismiss()
         }
 
@@ -142,75 +161,7 @@ class MedicineMenuFragment : Fragment() {
 
         dialogView.findViewById<Button>(R.id.btn_edit).setOnClickListener {
             dialog.dismiss()
-            showEditMedicineDialog(medicine)
-        }
-
-        dialog.show()
-    }
-
-    private fun showEditMedicineDialog(medicine: Medicine) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_medicine, null)
-
-        val title = dialogView.findViewById<TextView>(R.id.dialog_add_medicine_title)
-        val nameEdit = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_medicine_name)
-        val substanceEdit = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_active_substance)
-        val firmEdit = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_firm)
-        val spinner = dialogView.findViewById<Spinner>(R.id.dialog_add_medicine_spinner_form)
-
-        title.text = "Редактирование лекарства"
-
-        nameEdit.setText(medicine.name)
-        substanceEdit.setText(medicine.substance)
-        firmEdit.setText(medicine.manufacturer)
-
-        val forms = DosageForm.values()
-        val spinnerAdapter = object : ArrayAdapter<DosageForm>(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            forms
-        ) {
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = super.getView(position, convertView, parent)
-                (view as TextView).text = getItem(position)?.getLocalizedName(context)
-                return view
-            }
-
-            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = super.getDropDownView(position, convertView, parent)
-                (view as TextView).text = getItem(position)?.getLocalizedName(context)
-                return view
-            }
-        }
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = spinnerAdapter
-
-        spinner.setSelection(forms.indexOf(medicine.dosageForm))
-
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(dialogView)
-            .create()
-
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.setCanceledOnTouchOutside(true)
-
-        dialogView.findViewById<Button>(R.id.dialog_add_medicine_btn_save).setOnClickListener {
-            val newName = nameEdit.text.toString()
-            val newSubstance = substanceEdit.text.toString()
-            val newFirm = firmEdit.text.toString()
-            val newDosageForm = spinner.selectedItem as DosageForm
-
-            val updatedMedicine = medicine.copy(
-                name = newName,
-                substance = newSubstance,
-                manufacturer = newFirm,
-                dosageForm = newDosageForm
-            )
-
-            lifecycleScope.launch {
-                AppDatabase.getInstance(requireContext()).medicineDao().update(updatedMedicine)
-                loadMedicines()
-            }
-            dialog.dismiss()
+            showMedicineDialog(medicine)
         }
 
         dialog.show()

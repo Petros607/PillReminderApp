@@ -22,4 +22,7 @@
     <string name="dosage_ointment">Мазь</string>
     <string name="dosage_spray">Спрей</string>
     <string name="dosage_other">Иное</string>
+    <string name="add_medicine">Добавить лекарство</string>
+    <string name="edit_medicine">Редактирование лекарства</string>
+    <string name="error_empty_name">Введите название лекарства</string>
 </resources>
