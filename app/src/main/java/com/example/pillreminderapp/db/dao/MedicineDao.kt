@@ -14,6 +14,9 @@ interface MedicineDao {
     @Query("SELECT * FROM medicines WHERE id = :id")
     suspend fun getById(id: Long): Medicine?
 
+    @Update
+    suspend fun update(medicine: Medicine)
+
     @Delete
     suspend fun delete(medicine: Medicine)
 }
