@@ -13,4 +13,13 @@
         <item>Спрей</item>
         <item>Иное</item>
     </string-array>
+    <string name="dosage_tablet">Таблетка</string>
+    <string name="dosage_capsule">Капсула</string>
+    <string name="dosage_procedure">Процедура</string>
+    <string name="dosage_solution">Раствор</string>
+    <string name="dosage_droplet">Капля</string>
+    <string name="dosage_liquid">Жидкость</string>
+    <string name="dosage_ointment">Мазь</string>
+    <string name="dosage_spray">Спрей</string>
+    <string name="dosage_other">Иное</string>
 </resources>
