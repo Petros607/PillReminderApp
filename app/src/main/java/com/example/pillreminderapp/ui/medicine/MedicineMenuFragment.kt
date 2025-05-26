@@ -13,6 +13,12 @@ import androidx.fragment.app.Fragment
 import com.example.pillreminderapp.R
 import com.example.pillreminderapp.databinding.FragmentMedicineMenuBinding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.lifecycle.lifecycleScope
+import com.example.pillreminderapp.db.entities.DosageForm
+import com.example.pillreminderapp.db.entities.Medicine
+import com.example.pillreminderapp.db.AppDatabase
+import kotlinx.coroutines.launch
+
 
 class MedicineMenuFragment : Fragment() {
 
@@ -68,10 +74,35 @@ class MedicineMenuFragment : Fragment() {
             val name = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_medicine_name).text.toString()
             val substance = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_active_substance).text.toString()
             val firm = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_firm).text.toString()
-            val form = dialogView.findViewById<Spinner>(R.id.dialog_add_medicine_spinner_form).selectedItem.toString()
+            val formString = spinner.selectedItem.toString()
 
-            // TODO: Сохрани в базу данных
+            // Конвертация строки из спиннера в DosageForm
+            val dosageForm = when (formString) {
+                "Таблетка" -> DosageForm.TABLET
+                "Капсула" -> DosageForm.CAPSULE
+                "Процедура" -> DosageForm.PROCEDURE
+                "Раствор" -> DosageForm.SOLUTION
+                "Капля" -> DosageForm.DROPLET
+                "Жидкость" -> DosageForm.LIQUID
+                "Мазь" -> DosageForm.OINTMENT
+                "Спрей" -> DosageForm.SPRAY
+                "Иное" -> DosageForm.OTHER
+                else -> DosageForm.OTHER
+            }
 
+            val medicine = Medicine(
+                name = name,
+                substance = substance,
+                manufacturer = firm,
+                dosageForm = dosageForm
+            )
+
+            lifecycleScope.launch {
+                // Получаем инстанс БД и DAO
+                val db = AppDatabase.getInstance(requireContext())
+                db.medicineDao().insert(medicine)
+            }
+            Log.d("Table medicine", "medicine сохранен!")
             dialog.dismiss()
         }
 

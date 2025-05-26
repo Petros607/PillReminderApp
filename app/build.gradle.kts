@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.org.jetbrains.kotlin.kapt)
 }
 
 android {
@@ -39,10 +40,14 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        dataBinding =true
     }
 }
 
 dependencies {
+    implementation(libs.androidx.room.runtime.android)
+    kapt("androidx.room:room-compiler:2.7.1")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
