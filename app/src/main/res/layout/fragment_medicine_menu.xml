@@ -34,6 +34,9 @@
             android:layout_margin="12dp"
             android:contentDescription="Добавить лекарство"
             android:src="@drawable/ic_add"
+            app:backgroundTint="@color/light_orange"
+            app:tint="@null"
+            app:maxImageSize="67dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
