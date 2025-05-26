@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardElevation="4dp"
-    app:cardCornerRadius="12dp">
+    android:elevation="4dp">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
 
         <TextView
-            android:id="@+id/tv_name"
+            android:id="@+id/tv_medicine_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Название лекарства"
             android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textSize="18sp" />
 
         <TextView
-            android:id="@+id/tv_substance"
-            android:text="Субстанция"
+            android:id="@+id/tv_medicine_substance"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="Действующее вещество" />
 
-        <Button
-            android:id="@+id/btn_reminders"
-            android:text="Напоминания"
-            android:layout_marginTop="8dp"
+        <TextView
+            android:id="@+id/tv_medicine_firm"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="Производитель" />
+
+        <TextView
+            android:id="@+id/tv_medicine_form"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Форма выпуска" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -25,7 +25,7 @@ class MedicineMenuFragment : Fragment() {
     private var _binding: FragmentMedicineMenuBinding? = null
     private val binding get() = _binding!!
 
-//    private lateinit var adapter: MedicineAdapter
+    private lateinit var adapter: MedicineAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +45,26 @@ class MedicineMenuFragment : Fragment() {
                 Log.d("FAB", "FAB clicked")
                 showAddMedicineDialog()
             }
+        }
+
+        super.onViewCreated(view, savedInstanceState)
+
+        adapter = MedicineAdapter(listOf())
+        binding.rvMedicineList.adapter = adapter
+
+        loadMedicines()
+
+        binding.fabAddMedicine.setOnClickListener {
+            showAddMedicineDialog()
+        }
+    }
+
+    private fun loadMedicines() {
+        lifecycleScope.launch {
+            val db = AppDatabase.getInstance(requireContext())
+            val medicines = db.medicineDao().getAll()
+            adapter = MedicineAdapter(medicines)
+            binding.rvMedicineList.adapter = adapter
         }
     }
 
@@ -101,6 +121,7 @@ class MedicineMenuFragment : Fragment() {
                 // Получаем инстанс БД и DAO
                 val db = AppDatabase.getInstance(requireContext())
                 db.medicineDao().insert(medicine)
+                loadMedicines()
             }
             Log.d("Table medicine", "medicine сохранен!")
             dialog.dismiss()
