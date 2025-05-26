@@ -2,4 +2,11 @@
     <string name="app_name">PillReminderApp</string>
     <string name="title_home">Home</string>
     <string name="title_medicine">Medicine</string>
+    <string-array name="medicine_forms">
+        <item>Таблетки</item>
+        <item>Капсулы</item>
+        <item>Сироп</item>
+        <item>Мазь</item>
+        <item>Капли</item>
+    </string-array>
 </resources>
