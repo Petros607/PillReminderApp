@@ -51,9 +51,17 @@ class AddReminderStartDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
 
-            Toast.makeText(requireContext(), "Выбрано: ${selectedMedicine?.name}, $periodType, $description", Toast.LENGTH_LONG).show()
-
-            // Переход к следующему шагу или сохранение данных
+            if (periodType == PeriodType.WEEKDAYS) {
+                val selectDaysDialog = SelectDaysDialogFragment()
+                selectDaysDialog.show(parentFragmentManager, "SelectDaysDialog")
+            } else {
+                // TODO: Обработка других типов периода
+                Toast.makeText(
+                    requireContext(),
+                    "Выбрано: ${selectedMedicine?.name}, $periodType, $description",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
         return binding.root
@@ -65,6 +73,7 @@ class AddReminderStartDialogFragment : DialogFragment() {
         val spinnerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, localizedNames)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerPeriod.adapter = spinnerAdapter
+
     }
 
     private fun setupMedicineAutoComplete() {
