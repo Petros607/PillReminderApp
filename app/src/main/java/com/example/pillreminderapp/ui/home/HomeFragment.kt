@@ -1,5 +1,6 @@
 package com.example.pillreminderapp.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.pillreminderapp.databinding.FragmentHomeBinding
 import androidx.navigation.fragment.findNavController
+import com.example.pillreminderapp.DevInfoActivity
 import com.example.pillreminderapp.R
+import com.example.pillreminderapp.SystemInfoActivity
 import com.example.pillreminderapp.ui.reminders.AddReminderStartDialogFragment
 
 class HomeFragment : Fragment() {
@@ -35,6 +38,9 @@ class HomeFragment : Fragment() {
             dialog.show(parentFragmentManager, "AddReminderDialog")
         }
 
+        binding.imageLogo.setOnClickListener {
+            openDevInfo()
+        }
 
         return root
     }
@@ -43,6 +49,12 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+    }
+
+    private fun openDevInfo() {
+        val intent = Intent(requireActivity(), DevInfoActivity::class.java)
+        startActivity(intent)
+        requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     override fun onDestroyView() {

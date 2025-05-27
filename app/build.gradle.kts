@@ -46,6 +46,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.runtime.android)
+    implementation(libs.androidx.activity)
     kapt("androidx.room:room-compiler:2.7.1")
 
 
