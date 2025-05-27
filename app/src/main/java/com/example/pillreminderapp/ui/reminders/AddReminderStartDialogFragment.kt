@@ -51,15 +51,23 @@ class AddReminderStartDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
 
+            val args = Bundle().apply {
+                putLong("medicineId", selectedMedicine!!.id)
+                putSerializable("periodType", periodType)
+                putString("description", description)
+            }
+
             if (periodType == PeriodType.WEEKDAYS) {
                 val selectDaysDialog = SelectDaysDialogFragment()
+                selectDaysDialog.arguments = args
                 selectDaysDialog.show(parentFragmentManager, "SelectDaysDialog")
-                dismiss()
             } else {
                 val dialog = SelectPeriodDialogFragment()
+                dialog.arguments = args
                 dialog.show(parentFragmentManager, "SelectPeriodDialog")
-                dismiss()
             }
+            dismiss()
+
         }
 
         return binding.root

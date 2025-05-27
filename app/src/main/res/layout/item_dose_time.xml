@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="12dp">
+
+    <!-- Номер приема -->
+    <TextView
+        android:id="@+id/text_intake_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Прием 1"
+        android:textSize="14sp"
+        android:layout_marginEnd="8dp" />
+
+    <!-- Время приема -->
+    <TextView
+        android:id="@+id/text_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Время"
+        android:textColor="@color/black"
+
+        android:padding="8dp"
+        android:textSize="14sp"
+        android:layout_marginEnd="8dp"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Ввод дозировки -->
+    <EditText
+        android:id="@+id/edit_dose"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:hint="Доза"
+        android:inputType="numberDecimal"
+        android:padding="6dp"
+        android:layout_marginEnd="8dp"
+         />
+
+    <!-- Форма выпуска -->
+    <TextView
+        android:id="@+id/text_form"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Таблетки"
+        android:textSize="14sp" />
+</LinearLayout>

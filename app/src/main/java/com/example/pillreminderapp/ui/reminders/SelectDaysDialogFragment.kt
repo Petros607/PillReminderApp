@@ -42,11 +42,14 @@ class SelectDaysDialogFragment : DialogFragment() {
                 }
             }
 
-            dismiss()
-            // Здесь может быть валидация выбранных дней
+            val args = Bundle(arguments) // скопировать текущие аргументы
+
+            args.putStringArrayList("selectedDays", ArrayList(selectedDays)) // если нужно
 
             val dialog = SelectPeriodDialogFragment()
+            dialog.arguments = args
             dialog.show(parentFragmentManager, "SelectPeriodDialog")
+            dismiss()
         }
     }
 }

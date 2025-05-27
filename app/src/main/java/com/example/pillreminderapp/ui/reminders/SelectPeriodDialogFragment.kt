@@ -11,7 +11,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.example.pillreminderapp.R
+import com.example.pillreminderapp.db.entities.PeriodType
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Locale
 
@@ -22,6 +24,20 @@ class SelectPeriodDialogFragment : DialogFragment() {
     private var startDate: Calendar? = null
     private var endDate: Calendar? = null
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+    private var medicineId: Int = -1
+    private lateinit var periodType: PeriodType
+    private lateinit var description: String
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            medicineId = it.getInt("medicineId")
+            periodType = it.getSerializable("periodType") as PeriodType
+            description = it.getString("description") ?: ""
+        }
+    }
+
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = LayoutInflater.from(requireContext())
@@ -50,7 +66,14 @@ class SelectPeriodDialogFragment : DialogFragment() {
             if (startDate == null || endDate == null) {
                 Toast.makeText(requireContext(), "Выберите обе даты", Toast.LENGTH_SHORT).show()
             } else {
-                // TODO: сохранить или передать даты
+                val finalDialog = AddReminderFinalFragment.newInstance(
+                    selectedMedicineId = medicineId,
+                    periodType = periodType,
+                    startDate = startDate!!.toLocalDate(),
+                    endDate = endDate!!.toLocalDate(),
+                    description = description
+                )
+                finalDialog.show(parentFragmentManager, "DialogAddReminderFinal")
                 dismiss()
             }
         }
@@ -58,6 +81,10 @@ class SelectPeriodDialogFragment : DialogFragment() {
         return AlertDialog.Builder(requireContext())
             .setView(view)
             .create()
+    }
+
+    fun Calendar.toLocalDate(): LocalDate {
+        return LocalDate.of(get(Calendar.YEAR), get(Calendar.MONTH) + 1, get(Calendar.DAY_OF_MONTH))
     }
 
     private fun showDatePicker(onDateSelected: (Calendar) -> Unit) {
