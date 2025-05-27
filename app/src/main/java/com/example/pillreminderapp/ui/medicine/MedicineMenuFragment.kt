@@ -1,13 +1,16 @@
 package com.example.pillreminderapp.ui.medicine
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.pillreminderapp.DevInfoActivity
 import com.example.pillreminderapp.R
+import com.example.pillreminderapp.SystemInfoActivity
 import com.example.pillreminderapp.databinding.FragmentMedicineMenuBinding
 import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.db.entities.DosageForm
@@ -27,6 +30,11 @@ class MedicineMenuFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMedicineMenuBinding.inflate(inflater, container, false)
+
+        binding.imageLogo.setOnClickListener {
+            openDevInfo()
+        }
+
         return binding.root
     }
 
@@ -165,6 +173,12 @@ class MedicineMenuFragment : Fragment() {
         }
 
         dialog.show()
+    }
+
+    private fun openDevInfo() {
+        val intent = Intent(requireActivity(), DevInfoActivity::class.java)
+        startActivity(intent)
+        requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     override fun onDestroyView() {
