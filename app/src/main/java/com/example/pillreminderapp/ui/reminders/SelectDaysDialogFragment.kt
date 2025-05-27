@@ -42,8 +42,11 @@ class SelectDaysDialogFragment : DialogFragment() {
                 }
             }
 
-            // TODO: Передать список выбранных дней и открыть окно начала и конца приёма
             dismiss()
+            // Здесь может быть валидация выбранных дней
+
+            val dialog = SelectPeriodDialogFragment()
+            dialog.show(parentFragmentManager, "SelectPeriodDialog")
         }
     }
 }

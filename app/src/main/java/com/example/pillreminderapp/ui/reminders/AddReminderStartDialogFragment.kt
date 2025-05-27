@@ -54,13 +54,11 @@ class AddReminderStartDialogFragment : DialogFragment() {
             if (periodType == PeriodType.WEEKDAYS) {
                 val selectDaysDialog = SelectDaysDialogFragment()
                 selectDaysDialog.show(parentFragmentManager, "SelectDaysDialog")
+                dismiss()
             } else {
-                // TODO: Обработка других типов периода
-                Toast.makeText(
-                    requireContext(),
-                    "Выбрано: ${selectedMedicine?.name}, $periodType, $description",
-                    Toast.LENGTH_LONG
-                ).show()
+                val dialog = SelectPeriodDialogFragment()
+                dialog.show(parentFragmentManager, "SelectPeriodDialog")
+                dismiss()
             }
         }
 
