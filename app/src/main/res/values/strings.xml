@@ -25,4 +25,11 @@
     <string name="add_medicine">Добавить лекарство</string>
     <string name="edit_medicine">Редактирование лекарства</string>
     <string name="error_empty_name">Введите название лекарства</string>
+
+    <string name="period_daily">Каждый день</string>
+    <string name="period_every_other_day">Через день</string>
+    <string name="period_every_two_days">Через 2 дня</string>
+    <string name="period_every_three_days">Через 3 дня</string>
+    <string name="period_weekdays">По определенным дням недели</string>
+    <string name="period_custom">Каждые X дней</string>
 </resources>

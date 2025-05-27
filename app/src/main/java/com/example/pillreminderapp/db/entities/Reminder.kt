@@ -1,6 +1,8 @@
 package com.example.pillreminderapp.db.entities
 
+import android.content.Context
 import androidx.room.*
+import com.example.pillreminderapp.R
 
 enum class PeriodType {
     DAILY,
@@ -8,7 +10,18 @@ enum class PeriodType {
     EVERY_TWO_DAYS,
     EVERY_THREE_DAYS,
     WEEKDAYS,
-    CUSTOM
+    CUSTOM;
+
+    fun getLocalizedName(context: Context): String {
+        return when (this) {
+            DAILY -> context.getString(R.string.period_daily)
+            EVERY_OTHER_DAY -> context.getString(R.string.period_every_other_day)
+            EVERY_TWO_DAYS -> context.getString(R.string.period_every_two_days)
+            EVERY_THREE_DAYS -> context.getString(R.string.period_every_three_days)
+            WEEKDAYS -> context.getString(R.string.period_weekdays)
+            CUSTOM -> context.getString(R.string.period_custom)
+        }
+    }
 }
 
 @Entity(
