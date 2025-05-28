@@ -36,13 +36,25 @@ class HomeFragment : Fragment() {
         homeViewModel = ViewModelProvider(this, HomeViewModelFactory(db)).get(HomeViewModel::class.java)
 
         // Инициализируем адаптер с пустым списком
-        reminderAdapter = ReminderAdapter(emptyList())
+        reminderAdapter = ReminderAdapter(
+            reminders = emptyList(),
+            medicineInfo = emptyMap(),
+            context = requireContext()
+        )
+        // Пока создаём с пустыми списками
+        reminderAdapter = ReminderAdapter(emptyList(), emptyMap(), requireContext())
         binding.remindersRecyclerView.adapter = reminderAdapter
         binding.remindersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Подписываемся на LiveData с данными для отображения
-        homeViewModel.reminderDisplayItems.observe(viewLifecycleOwner) { items ->
-            reminderAdapter.updateData(items)
+        // Подписка на данные
+        homeViewModel.reminders.observe(viewLifecycleOwner) { reminders ->
+            val currentInfo = homeViewModel.medicineInfo.value ?: emptyMap()
+            reminderAdapter.updateData(reminders, currentInfo)
+        }
+
+        homeViewModel.medicineInfo.observe(viewLifecycleOwner) { medicineInfo ->
+            val currentReminders = homeViewModel.reminders.value ?: emptyList()
+            reminderAdapter.updateData(currentReminders, medicineInfo)
         }
 
         // Кнопка добавления напоминания

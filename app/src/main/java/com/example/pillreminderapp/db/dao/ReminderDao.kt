@@ -1,6 +1,7 @@
 package com.example.pillreminderapp.db.dao
 
 import androidx.room.*
+import com.example.pillreminderapp.db.entities.DosageForm
 import com.example.pillreminderapp.db.entities.Reminder
 
 @Dao
@@ -46,6 +47,11 @@ interface ReminderDao {
     suspend fun deleteAll()
 
     // Дополнительные полезные запросы:
+    /**
+     * Получает форму дозировки лекарства по ID лекарства
+     */
+    @Query("SELECT dosage_form FROM medicines WHERE id = :medicineId")
+    suspend fun getDosageFormByMedicineId(medicineId: Long): DosageForm
 
     // Получение напоминаний на определенную дату
     @Query("SELECT * FROM reminders WHERE intake_date = :date")
