@@ -5,14 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pillreminderapp.DevInfoActivity
+import com.example.pillreminderapp.R
 import com.example.pillreminderapp.databinding.FragmentHomeBinding
 import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.ui.adapters.ReminderAdapter
 import com.example.pillreminderapp.ui.reminders.AddReminderStartDialogFragment
+import com.google.android.material.chip.Chip
 
 class HomeFragment : Fragment() {
 
@@ -42,19 +45,20 @@ class HomeFragment : Fragment() {
             medicineInfo = emptyMap(),
             context = requireContext()
         )
-        // Пока создаём с пустыми списками
-        reminderAdapter = ReminderAdapter(emptyList(), emptyMap(), requireContext())
+
+        setupDateFilters()
+
         binding.remindersRecyclerView.adapter = reminderAdapter
         binding.remindersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Подписка на данные
-        homeViewModel.reminders.observe(viewLifecycleOwner) { reminders ->
+        homeViewModel.filteredReminders.observe(viewLifecycleOwner) { reminders ->
             val currentInfo = homeViewModel.medicineInfo.value ?: emptyMap()
             reminderAdapter.updateData(reminders, currentInfo)
         }
 
         homeViewModel.medicineInfo.observe(viewLifecycleOwner) { medicineInfo ->
-            val currentReminders = homeViewModel.reminders.value ?: emptyList()
+            val currentReminders = homeViewModel.filteredReminders.value ?: emptyList()
             reminderAdapter.updateData(currentReminders, medicineInfo)
         }
 
@@ -70,6 +74,43 @@ class HomeFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun setupDateFilters() {
+        val chipGroup = binding.filterChipGroup
+        val todayChip = createFilterChip("Сегодня", FilterType.TODAY)
+        val tomorrowChip = createFilterChip("Завтра", FilterType.TOMORROW)
+        val weekChip = createFilterChip("Неделя", FilterType.WEEK)
+        val allChip = createFilterChip("Все", FilterType.ALL)
+
+        chipGroup.addView(todayChip)
+        chipGroup.addView(tomorrowChip)
+        chipGroup.addView(weekChip)
+        chipGroup.addView(allChip)
+
+        // Выбираем "Все" по умолчанию
+        allChip.isChecked = true
+
+        chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            val chip = group.findViewById<Chip>(checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener)
+            val filterType = chip.tag as FilterType
+            homeViewModel.applyFilter(filterType)
+        }
+    }
+
+    enum class FilterType {
+        TODAY, TOMORROW, WEEK, ALL
+    }
+
+    private fun createFilterChip(text: String, filterType: FilterType): Chip {
+        return Chip(requireContext()).apply {
+            this.text = text
+            tag = filterType
+            isCheckable = true
+            setEnsureMinTouchTargetSize(false)
+            setChipBackgroundColorResource(R.color.chip_background_selector)
+            setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.chip_text_selector))
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
