@@ -1,40 +1,17 @@
 package com.example.pillreminderapp.db.entities
 
-import android.content.Context
 import androidx.room.*
-import com.example.pillreminderapp.R
 
-enum class PeriodType {
-    DAILY,
-    EVERY_OTHER_DAY,
-    EVERY_TWO_DAYS,
-    EVERY_THREE_DAYS,
-    WEEKDAYS;
-
-    fun getLocalizedName(context: Context): String {
-        return when (this) {
-            DAILY -> context.getString(R.string.period_daily)
-            EVERY_OTHER_DAY -> context.getString(R.string.period_every_other_day)
-            EVERY_TWO_DAYS -> context.getString(R.string.period_every_two_days)
-            EVERY_THREE_DAYS -> context.getString(R.string.period_every_three_days)
-            WEEKDAYS -> context.getString(R.string.period_every_three_days)
-        }
-    }
-}
-
-//@Entity(
-//    tableName = "reminders",
-//    foreignKeys = [
-//        ForeignKey(
-//            entity = Medicine::class,
-//            parentColumns = ["id"],
-//            childColumns = ["medicine_id"],
-//            onDelete = ForeignKey.CASCADE
-//        )
-//    ],
-//    indices = [Index(value = ["medicine_id"])]
-//)
-@Entity(tableName = "reminders")
+@Entity(
+    tableName = "reminders",
+    foreignKeys = [ForeignKey(
+        entity = Medicine::class,
+        parentColumns = ["id"],
+        childColumns = ["medicine_id"],
+        onDelete = ForeignKey.CASCADE, // опционально: что делать при удалении лекарства
+        onUpdate = ForeignKey.CASCADE // опционально: что делать при обновлении id лекарства
+    )]
+)
 data class Reminder(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
@@ -54,16 +31,4 @@ data class Reminder(
 
     @ColumnInfo(name = "notification_time")
     val notificationTime: Long
-
-//    @ColumnInfo(name = "period_type")
-//    val periodType: PeriodType,
-
-//    @ColumnInfo(name = "custom_interval")
-//    val customInterval: Int? = null,
-
-//    @ColumnInfo(name = "start_date")
-//    val startDate: Long,
-//
-//    @ColumnInfo(name = "end_date")
-//    val endDate: Long
 )
