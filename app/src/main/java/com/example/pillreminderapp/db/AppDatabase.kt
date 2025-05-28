@@ -8,7 +8,7 @@ import com.example.pillreminderapp.db.entities.*
 
 @Database(
     entities = [Medicine::class, Reminder::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(DosageFormConverter::class)
@@ -27,7 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "med_reminder_db"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }

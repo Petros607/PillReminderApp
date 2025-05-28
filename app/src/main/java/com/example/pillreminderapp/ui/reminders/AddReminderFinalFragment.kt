@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -17,17 +18,17 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import com.example.pillreminderapp.R
-import com.example.pillreminderapp.db.entities.PeriodType
 import java.time.LocalDate
-import androidx.core.view.isEmpty
 import androidx.lifecycle.lifecycleScope
 import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.db.entities.Reminder
-import com.example.pillreminderapp.db.entities.Intake
-import com.example.pillreminderapp.db.entities.Notification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class AddReminderFinalFragment : DialogFragment() {
 
@@ -43,6 +44,21 @@ class AddReminderFinalFragment : DialogFragment() {
 
         // Теперь мы ищем элементы в `view`, а не через `requireView()`
         btnSave = view.findViewById(R.id.btn_save)
+
+        btnSave.setOnClickListener {
+            lifecycleScope.launch {
+                val dateStrings = arguments?.getStringArrayList("reminderDates") ?: arrayListOf()
+                val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+                val parsedDates = dateStrings.map { LocalDate.parse(it, formatter) }
+
+                saveReminders(
+                    medicineId = arguments?.getLong("medicineId") ?: 0L,
+                    reminderDates = parsedDates,
+                    description = arguments?.getString("description") ?: "",
+                    view = view
+                )
+            }
+        }
 
         setupSingleReminderSpinner(view)
         addDoseItem(view)
@@ -94,8 +110,8 @@ class AddReminderFinalFragment : DialogFragment() {
     }
 
 
-    private fun collectDoseFromUI(): Pair<String, Float>? {
-        val doseItem = requireView().findViewById<View>(R.id.include_dose_time)
+    private fun collectDoseFromUI(view: View): Pair<String, Float>? {
+        val doseItem = view.findViewById<View>(R.id.include_dose_time)
         val timeText = doseItem.findViewById<TextView>(R.id.text_time)
         val doseText = doseItem.findViewById<TextView>(R.id.text_dose_final)
 
@@ -113,21 +129,24 @@ class AddReminderFinalFragment : DialogFragment() {
     }
 
 
-    private fun collectNotificationOffset(): Int? {
-        val reminderItem = requireView().findViewById<View>(R.id.include_reminder_time)
+
+    private fun collectNotificationOffset(view: View): Long {
+        val reminderItem = view.findViewById<View>(R.id.include_reminder_time)
         val spinner = reminderItem.findViewById<Spinner>(R.id.spinner_reminder_time)
         val selectedOption = spinner.selectedItem as String
 
-        return when (selectedOption) {
+        val minutesOffset = when (selectedOption) {
             "В момент приема" -> 0
             "За 10 минут" -> 10
             "За 15 минут" -> 15
             "За 30 минут" -> 30
             "За 1 час" -> 60
-            "Нет" -> null
-            else -> null
+            else -> 0
         }
+
+        return minutesOffset * 60_000L
     }
+
 
     @SuppressLint("InflateParams")
     private fun addDoseItem(view: View) {
@@ -181,80 +200,71 @@ class AddReminderFinalFragment : DialogFragment() {
 
     private fun setupSingleReminderSpinner(view: View) {
         val spinner = view.findViewById<Spinner>(R.id.spinner_reminder_time)
-        val options = listOf("В момент приема", "За 10 минут", "За 15 минут", "За 30 минут", "За 1 час", "Нет")
+        val options = listOf("В момент приема", "За 10 минут", "За 15 минут", "За 30 минут", "За 1 час")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, options)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
+
+        spinner.setSelection(0)
     }
 
 
-//
+
     @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun saveReminder(
+    private suspend fun saveReminders(
         medicineId: Long,
-        periodType: PeriodType,
-        startDate: LocalDate,
-        endDate: LocalDate,
+        reminderDates: List<LocalDate>,
         description: String,
-        doses: List<Pair<String, Float>>, // время и доза из UI
-        notificationOffsets: List<Int> // в минутах: 0, 10, 15 и т.д.
+        view: View
     ) {
         val reminderDao = AppDatabase.getInstance(requireContext()).reminderDao()
-        val intakeDao = AppDatabase.getInstance(requireContext()).intakeDao()
-        val notificationDao = AppDatabase.getInstance(requireContext()).notificationDao()
 
+        val dosePair = collectDoseFromUI(view)
+        if (dosePair == null) {
+            Toast.makeText(requireContext(), "Укажите время и дозу", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        val reminder = Reminder(
-            medicineId = medicineId,
-            periodType = periodType,
-            startDate = startDate.toEpochDay() * 24*60*60*1000L, // перевод в millis
-            endDate = endDate.toEpochDay() * 24*60*60*1000L,
-            description = description,
+        val notificationOffset = collectNotificationOffset(view)
+        val timeString = dosePair.first
 
-        )
-        val reminderId = reminderDao.insert(reminder)
+        val formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
+        val localTime = LocalTime.parse(timeString, formatter)
+        val intakeTimeMillis = localTime.toSecondOfDay() * 1000L
 
+        for (date in reminderDates) {
+            val localDateTime = date.atStartOfDay()
+            val zoneId = ZoneId.systemDefault()
+            val instant = localDateTime.atZone(zoneId).toInstant()
+            val timestampMillis = instant.toEpochMilli()
 
-        for (date in dateList) {
-            for ((timeStr, dose) in doses) {
-                val (hour, minute) = timeStr.split(":").map { it.toInt() }
-                // вычисляем время intake в millis
-                val intakeDateTimeMillis = date.atTime(hour, minute)
-                    .atZone(java.time.ZoneId.systemDefault())
-                    .toInstant()
-                    .toEpochMilli()
+            val reminder = Reminder(
+                medicineId = medicineId,
+                intakeDate = timestampMillis,
+                intakeTime = intakeTimeMillis,
+                description = description,
+                dose = dosePair.second,
+                notificationTime = notificationOffset
+            )
 
-                val intake = Intake(
-                    reminderId = reminderId,
-                    intakeTime = intakeDateTimeMillis,
-                    dose = dose
-                )
-                val intakeId = intakeDao.insert(intake)
-
-                // Создаем уведомления для каждого offset из UI
-                for (offsetMinutes in notificationOffsets) {
-                    val notificationTime = intakeDateTimeMillis - offsetMinutes * 60 * 1000L
-                    val notification = Notification(
-                        intakeId = intakeId,
-                        notificationTime = notificationTime
-                    )
-                    notificationDao.insert(notification)
-                }
+            withContext(Dispatchers.IO) {
+                reminderDao.insert(reminder)
             }
         }
+
+        Toast.makeText(requireContext(), "Напоминание сохранено", Toast.LENGTH_SHORT).show()
+        dialog?.dismiss()
     }
 
     companion object {
         fun newInstance(
             selectedMedicineId: Long,
-            periodType: PeriodType,
             description: String,
             reminderDates: ArrayList<LocalDate>
         ): AddReminderFinalFragment {
             val fragment = AddReminderFinalFragment()
             val args = Bundle().apply {
                 putLong("medicineId", selectedMedicineId)
-                putSerializable("periodType", periodType)
                 putString("description", description)
                 putStringArrayList("reminderDates", ArrayList(reminderDates.map { it.toString() }))
             }

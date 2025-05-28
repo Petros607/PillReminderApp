@@ -124,7 +124,6 @@ class SelectPeriodDialogFragment : DialogFragment() {
 //
             val finalDialog = AddReminderFinalFragment.newInstance(
                 selectedMedicineId = medicineId,
-                periodType = periodType,
                 description = description,
                 reminderDates = ArrayList(reminderDates) // добавьте поддержку, если нужно
             )
