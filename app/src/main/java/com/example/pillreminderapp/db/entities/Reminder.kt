@@ -22,18 +22,19 @@ enum class PeriodType {
     }
 }
 
-@Entity(
-    tableName = "reminders",
-    foreignKeys = [
-        ForeignKey(
-            entity = Medicine::class,
-            parentColumns = ["id"],
-            childColumns = ["medicine_id"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
-    indices = [Index(value = ["medicine_id"])]
-)
+//@Entity(
+//    tableName = "reminders",
+//    foreignKeys = [
+//        ForeignKey(
+//            entity = Medicine::class,
+//            parentColumns = ["id"],
+//            childColumns = ["medicine_id"],
+//            onDelete = ForeignKey.CASCADE
+//        )
+//    ],
+//    indices = [Index(value = ["medicine_id"])]
+//)
+@Entity(tableName = "reminders")
 data class Reminder(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
@@ -41,17 +42,28 @@ data class Reminder(
     @ColumnInfo(name = "medicine_id")
     val medicineId: Long,
 
-    @ColumnInfo(name = "period_type")
-    val periodType: PeriodType,
-
-    @ColumnInfo(name = "custom_interval")
-    val customInterval: Int? = null,
-
     val description: String? = null,
 
-    @ColumnInfo(name = "start_date")
-    val startDate: Long,
+    @ColumnInfo(name = "intake_date")
+    val intakeDate: Long,
 
-    @ColumnInfo(name = "end_date")
-    val endDate: Long
+    @ColumnInfo(name = "intake_time")
+    val intakeTime: Long,
+
+    val dose: Float,
+
+    @ColumnInfo(name = "notification_time")
+    val notificationTime: Long
+
+//    @ColumnInfo(name = "period_type")
+//    val periodType: PeriodType,
+
+//    @ColumnInfo(name = "custom_interval")
+//    val customInterval: Int? = null,
+
+//    @ColumnInfo(name = "start_date")
+//    val startDate: Long,
+//
+//    @ColumnInfo(name = "end_date")
+//    val endDate: Long
 )
