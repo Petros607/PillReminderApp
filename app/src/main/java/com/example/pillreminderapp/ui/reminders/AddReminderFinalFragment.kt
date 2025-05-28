@@ -19,6 +19,9 @@ import java.time.LocalDate
 import androidx.core.view.isEmpty
 import androidx.lifecycle.lifecycleScope
 import com.example.pillreminderapp.db.AppDatabase
+import com.example.pillreminderapp.db.entities.Reminder
+import com.example.pillreminderapp.db.entities.Intake
+import com.example.pillreminderapp.db.entities.Notification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -101,10 +104,72 @@ class AddReminderFinalFragment : DialogFragment() {
                 return@setOnClickListener
             }
 
-            Toast.makeText(requireContext(), "Напоминание сохранено", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                saveReminder(
+                    medicineId = arguments?.getLong("medicineId") ?: 0L,
+                    periodType = arguments?.getSerializable("periodType") as PeriodType,
+                    startDate = LocalDate.parse(arguments?.getString("startDate")),
+                    endDate = LocalDate.parse(arguments?.getString("endDate")),
+                    description = arguments?.getString("description") ?: "",
+                    selectedDays = arguments?.getStringArrayList("selectedDays"),
+                    doses = collectDosesFromUI(), // нужно реализовать сбор доз из UI
+                    notificationOffsets = collectNotificationOffsetsFromUI() // тоже нужно реализовать сбор из UI
+                )
+                dismiss()
+            }
             dismiss()
         }
     }
+
+    private fun collectDosesFromUI(): List<Pair<String, Float>> {
+        val doses = mutableListOf<Pair<String, Float>>()
+
+        for (i in 0 until doseListLayout.childCount) {
+            val doseItem = doseListLayout.getChildAt(i)
+            val timeText = doseItem.findViewById<TextView>(R.id.text_time)
+            val doseText = doseItem.findViewById<TextView>(R.id.text_dose_final)
+
+            val time = timeText.text.toString()
+            val doseStr = doseText.text.toString()
+
+            // Проверяем, что время и доза валидны
+            if (time.isNotBlank() && doseStr.isNotBlank() && doseStr != "Доза") {
+                val doseValue = doseStr.toFloatOrNull()
+                if (doseValue != null) {
+                    doses.add(time to doseValue)
+                }
+            }
+        }
+
+        return doses
+    }
+
+    private fun collectNotificationOffsetsFromUI(): List<Int> {
+        val offsets = mutableListOf<Int>()
+        for (i in 0 until reminderListLayout.childCount) {
+            val reminderItem = reminderListLayout.getChildAt(i)
+            val spinner = reminderItem.findViewById<Spinner>(R.id.spinner_reminder_time)
+            val selectedOption = spinner.selectedItem as String
+
+            // Преобразуем выбранный текст в минуты
+            val offsetMinutes = when (selectedOption) {
+                "В момент приема" -> 0
+                "За 10 минут" -> 10
+                "За 15 минут" -> 15
+                "За 30 минут" -> 30
+                "За 1 час" -> 60
+                "Нет" -> null
+                else -> null
+            }
+
+            if (offsetMinutes != null) {
+                offsets.add(offsetMinutes)
+            }
+        }
+
+        return offsets
+    }
+
 
     @SuppressLint("InflateParams")
     private fun addDoseItem() {
@@ -171,6 +236,120 @@ class AddReminderFinalFragment : DialogFragment() {
         spinner.adapter = adapter
 
         reminderListLayout.addView(reminderItem)
+    }
+
+    private suspend fun saveReminder(
+        medicineId: Long,
+        periodType: PeriodType,
+        startDate: LocalDate,
+        endDate: LocalDate,
+        description: String,
+        selectedDays: List<String>?, // для WEEKDAYS
+        doses: List<Pair<String, Float>>, // время и доза из UI
+        notificationOffsets: List<Int> // в минутах: 0, 10, 15 и т.д.
+    ) {
+        val reminderDao = AppDatabase.getInstance(requireContext()).reminderDao()
+        val intakeDao = AppDatabase.getInstance(requireContext()).intakeDao()
+        val notificationDao = AppDatabase.getInstance(requireContext()).notificationDao()
+
+        val selectedWeekdaysStr = selectedDays?.joinToString(",")
+
+        val reminder = Reminder(
+            medicineId = medicineId,
+            periodType = periodType,
+            startDate = startDate.toEpochDay() * 24*60*60*1000L, // перевод в millis
+            endDate = endDate.toEpochDay() * 24*60*60*1000L,
+            description = description,
+            selectedWeekdays = selectedWeekdaysStr
+        )
+        val reminderId = reminderDao.insert(reminder)
+
+        // Пройтись по датам от startDate до endDate с шагом в зависимости от periodType
+        val dateList = generateDatesByPeriod(periodType, startDate, endDate, selectedDays)
+
+        for (date in dateList) {
+            for ((timeStr, dose) in doses) {
+                val (hour, minute) = timeStr.split(":").map { it.toInt() }
+                // вычисляем время intake в millis
+                val intakeDateTimeMillis = date.atTime(hour, minute)
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+
+                val intake = Intake(
+                    reminderId = reminderId,
+                    intakeTime = intakeDateTimeMillis,
+                    dose = dose
+                )
+                val intakeId = intakeDao.insert(intake)
+
+                // Создаем уведомления для каждого offset из UI
+                for (offsetMinutes in notificationOffsets) {
+                    val notificationTime = intakeDateTimeMillis - offsetMinutes * 60 * 1000L
+                    val notification = Notification(
+                        intakeId = intakeId,
+                        notificationTime = notificationTime
+                    )
+                    notificationDao.insert(notification)
+                }
+            }
+        }
+    }
+
+    private fun generateDatesByPeriod(
+        periodType: PeriodType,
+        startDate: LocalDate,
+        endDate: LocalDate,
+        selectedDays: List<String>? = null
+    ): List<LocalDate> {
+        val dates = mutableListOf<LocalDate>()
+        var currentDate = startDate
+
+        when (periodType) {
+            PeriodType.WEEKDAYS -> {
+                // Преобразуем selectedDays из ["Mon", "Wed"] в DayOfWeek
+                val selectedDayOfWeeks = selectedDays?.mapNotNull {
+                    when (it) {
+                        "Mon" -> java.time.DayOfWeek.MONDAY
+                        "Tue" -> java.time.DayOfWeek.TUESDAY
+                        "Wed" -> java.time.DayOfWeek.WEDNESDAY
+                        "Thu" -> java.time.DayOfWeek.THURSDAY
+                        "Fri" -> java.time.DayOfWeek.FRIDAY
+                        "Sat" -> java.time.DayOfWeek.SATURDAY
+                        "Sun" -> java.time.DayOfWeek.SUNDAY
+                        else -> null
+                    }
+                } ?: emptyList()
+
+                while (!currentDate.isAfter(endDate)) {
+                    if (selectedDayOfWeeks.contains(currentDate.dayOfWeek)) {
+                        dates.add(currentDate)
+                    }
+                    currentDate = currentDate.plusDays(1)
+                }
+            }
+
+            PeriodType.DAILY -> {
+                while (!currentDate.isAfter(endDate)) {
+                    dates.add(currentDate)
+                    currentDate = currentDate.plusDays(1)
+                }
+            }
+
+            PeriodType.EVERY_OTHER_DAY -> {
+                while (!currentDate.isAfter(endDate)) {
+                    dates.add(currentDate)
+                    currentDate = currentDate.plusDays(2)
+                }
+            }
+
+            // Другие типы по аналогии...
+
+            else -> {
+                // Можно реализовать по своему усмотрению
+            }
+        }
+        return dates
     }
 
 
