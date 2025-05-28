@@ -33,7 +33,8 @@ class HomeFragment : Fragment() {
         val db = AppDatabase.getInstance(requireContext())
 
         // Создаем ViewModel с фабрикой (HomeViewModelFactory нужно реализовать)
-        homeViewModel = ViewModelProvider(this, HomeViewModelFactory(db)).get(HomeViewModel::class.java)
+        homeViewModel = ViewModelProvider(requireActivity(), HomeViewModelFactory(db))
+            .get(HomeViewModel::class.java)
 
         // Инициализируем адаптер с пустым списком
         reminderAdapter = ReminderAdapter(

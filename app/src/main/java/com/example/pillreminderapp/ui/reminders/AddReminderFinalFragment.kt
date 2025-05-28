@@ -17,11 +17,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.pillreminderapp.R
 import java.time.LocalDate
 import androidx.lifecycle.lifecycleScope
 import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.db.entities.Reminder
+import com.example.pillreminderapp.ui.home.HomeViewModel
+import com.example.pillreminderapp.ui.home.HomeViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,6 +60,12 @@ class AddReminderFinalFragment : DialogFragment() {
                     description = arguments?.getString("description") ?: "",
                     view = view
                 )
+
+                val homeViewModel = ViewModelProvider(requireActivity(), HomeViewModelFactory(AppDatabase.getInstance(requireContext())))
+                    .get(HomeViewModel::class.java)
+
+                homeViewModel.loadReminders()
+                dialog?.dismiss()
             }
         }
 
