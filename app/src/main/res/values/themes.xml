@@ -23,4 +23,28 @@
         <item name="android:background">@color/light_orange</item>
 
     </style>
+    <style name="CustomTimePickerDialog" parent="Theme.Material3.DayNight.Dialog">
+        <!-- Основные цвета -->
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/orange</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Цвет текста и фона -->
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:background">@color/light_orange</item>
+
+        <!-- Режим выбора времени: спиннер -->
+        <item name="android:timePickerMode">spinner</item>
+
+        <!-- Кнопки -->
+        <item name="buttonBarPositiveButtonStyle">@style/CustomDialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/CustomDialogButton</item>
+    </style>
+
+    <style name="CustomDialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/orange</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
 </resources>

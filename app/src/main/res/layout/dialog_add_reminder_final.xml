@@ -23,6 +23,14 @@
             android:gravity="center"
             android:layout_marginBottom="16dp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Приемы"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
         <!-- Контейнер для приёмов -->
         <LinearLayout
             android:id="@+id/doseListLayout"

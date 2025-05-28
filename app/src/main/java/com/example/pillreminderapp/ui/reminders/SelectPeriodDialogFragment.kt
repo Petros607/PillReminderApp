@@ -25,19 +25,22 @@ class SelectPeriodDialogFragment : DialogFragment() {
     private var endDate: Calendar? = null
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    private var medicineId: Int = -1
+    private var medicineId: Long = -1
     private lateinit var periodType: PeriodType
     private lateinit var description: String
+    private var selectedDays: ArrayList<String>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            medicineId = it.getInt("medicineId")
+            medicineId = it.getLong("medicineId")
             periodType = it.getSerializable("periodType") as PeriodType
             description = it.getString("description") ?: ""
+            if (periodType == PeriodType.WEEKDAYS) {
+                selectedDays = it.getStringArrayList("selectedDays")
+            }
         }
     }
-
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = LayoutInflater.from(requireContext())
@@ -71,7 +74,8 @@ class SelectPeriodDialogFragment : DialogFragment() {
                     periodType = periodType,
                     startDate = startDate!!.toLocalDate(),
                     endDate = endDate!!.toLocalDate(),
-                    description = description
+                    description = description,
+                    selectedDays = if (periodType == PeriodType.WEEKDAYS) selectedDays else null
                 )
                 finalDialog.show(parentFragmentManager, "DialogAddReminderFinal")
                 dismiss()
