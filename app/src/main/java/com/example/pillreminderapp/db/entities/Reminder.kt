@@ -9,8 +9,7 @@ enum class PeriodType {
     EVERY_OTHER_DAY,
     EVERY_TWO_DAYS,
     EVERY_THREE_DAYS,
-    WEEKDAYS,
-    CUSTOM;
+    WEEKDAYS;
 
     fun getLocalizedName(context: Context): String {
         return when (this) {
@@ -18,8 +17,7 @@ enum class PeriodType {
             EVERY_OTHER_DAY -> context.getString(R.string.period_every_other_day)
             EVERY_TWO_DAYS -> context.getString(R.string.period_every_two_days)
             EVERY_THREE_DAYS -> context.getString(R.string.period_every_three_days)
-            WEEKDAYS -> context.getString(R.string.period_weekdays)
-            CUSTOM -> context.getString(R.string.period_custom)
+            WEEKDAYS -> context.getString(R.string.period_every_three_days)
         }
     }
 }
@@ -48,9 +46,6 @@ data class Reminder(
 
     @ColumnInfo(name = "custom_interval")
     val customInterval: Int? = null,
-
-    @ColumnInfo(name = "selected_weekdays")
-    val selectedWeekdays: String? = null,
 
     val description: String? = null,
 

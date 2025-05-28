@@ -57,15 +57,10 @@ class AddReminderStartDialogFragment : DialogFragment() {
                 putString("description", description)
             }
 
-            if (periodType == PeriodType.WEEKDAYS) {
-                val selectDaysDialog = SelectDaysDialogFragment()
-                selectDaysDialog.arguments = args
-                selectDaysDialog.show(parentFragmentManager, "SelectDaysDialog")
-            } else {
-                val dialog = SelectPeriodDialogFragment()
-                dialog.arguments = args
-                dialog.show(parentFragmentManager, "SelectPeriodDialog")
-            }
+            val dialog = SelectPeriodDialogFragment()
+            dialog.arguments = args
+            dialog.show(parentFragmentManager, "SelectPeriodDialog")
+
             dismiss()
 
         }
