@@ -25,6 +25,7 @@ import com.example.pillreminderapp.db.entities.Reminder
 import com.example.pillreminderapp.reminder.ReminderReceiver
 import com.example.pillreminderapp.ui.adapters.ReminderAdapter
 import com.example.pillreminderapp.ui.reminders.AddReminderStartDialogFragment
+import com.example.pillreminderapp.ui.reminders.EditReminderDialog
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -217,15 +218,14 @@ class HomeFragment : Fragment() {
             dialog.dismiss()
         }
 
-//        btnEdit.setOnClickListener {
-//        val medicineDao = AppDatabase.getInstance(requireContext()).medicineDao()
+        btnEdit.setOnClickListener {
+            val medicineDao = AppDatabase.getInstance(requireContext()).medicineDao()
 //        val medicine = medicineDao.getById(reminder.medicineId)!!
 //        cancelNotification(reminder, medicine)
 //        scheduleNotification(reminder, medicine)
-//            dialog.dismiss()
-//            val dialogFragment = AddReminderStartDialogFragment.newInstance(reminder.id)
-//            dialogFragment.show(parentFragmentManager, "EditReminderDialog")
-//        }
+            val dialog = EditReminderDialog.newInstance(reminder.id)
+            dialog.show(parentFragmentManager, "EditReminderDialog")
+        }
 
         btnMarkTaken.setOnClickListener {
             lifecycleScope.launch {

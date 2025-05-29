@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.db.entities.Medicine
+import com.example.pillreminderapp.db.entities.Reminder
 import kotlinx.coroutines.launch
 
 class AddReminderStartDialogViewModel(application: Application) : AndroidViewModel(application) {
