@@ -1,7 +1,11 @@
 package com.example.pillreminderapp.ui.home
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +20,9 @@ import com.example.pillreminderapp.DevInfoActivity
 import com.example.pillreminderapp.R
 import com.example.pillreminderapp.databinding.FragmentHomeBinding
 import com.example.pillreminderapp.db.AppDatabase
+import com.example.pillreminderapp.db.entities.Medicine
 import com.example.pillreminderapp.db.entities.Reminder
+import com.example.pillreminderapp.reminder.ReminderReceiver
 import com.example.pillreminderapp.ui.adapters.ReminderAdapter
 import com.example.pillreminderapp.ui.reminders.AddReminderStartDialogFragment
 import kotlinx.coroutines.launch
@@ -25,6 +31,10 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import com.google.android.material.chip.Chip
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class HomeFragment : Fragment() {
 
@@ -173,7 +183,21 @@ class HomeFragment : Fragment() {
         val formattedTime = formatter.format(date)
         tvSubtitle.text = "Время: $formattedTime"
 
+        val tvDescription = dialogView.findViewById<TextView>(R.id.tvDescription)
+        val tvNotificationTime = dialogView.findViewById<TextView>(R.id.tvNotificationTime)
 
+        tvDescription.text = if (!reminder.description.isNullOrBlank()) {
+            "Описание: ${reminder.description}"
+        } else {
+            "Описание: отсутствует"
+        }
+
+        val notificationMinutes = reminder.notificationTime / 60000 // 60000 мс = 1 мин
+        tvNotificationTime.text = if (notificationMinutes == 0L) {
+            "Уведомление придёт во время приёма"
+        } else {
+            "Уведомление придёт за $notificationMinutes мин до приёма"
+        }
 
         val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setView(dialogView)
@@ -184,6 +208,9 @@ class HomeFragment : Fragment() {
 
         btnDelete.setOnClickListener {
             lifecycleScope.launch {
+                val medicineDao = AppDatabase.getInstance(requireContext()).medicineDao()
+                val medicine = medicineDao.getById(reminder.medicineId)!!
+                cancelNotification(reminder, medicine)
                 AppDatabase.getInstance(requireContext()).reminderDao().delete(reminder)
                 homeViewModel.loadReminders()
             }
@@ -196,17 +223,61 @@ class HomeFragment : Fragment() {
 //            dialogFragment.show(parentFragmentManager, "EditReminderDialog")
 //        }
 
-//        btnMarkTaken.setOnClickListener {
-//            lifecycleScope.launch {
-//                val updatedReminder = reminder.copy(isTaken = true)
-//                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
-//                homeViewModel.loadReminders()
-//            }
-//            dialog.dismiss()
-//        }
+        btnMarkTaken.setOnClickListener {
+            lifecycleScope.launch {
+                val updatedReminder = reminder.copy(mark = true)
+                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
+                homeViewModel.loadReminders()
+            }
+            dialog.dismiss()
+        }
+
+        tvMissed.setOnClickListener {
+            lifecycleScope.launch {
+                val updatedReminder = reminder.copy(mark = false)
+                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
+                homeViewModel.loadReminders()
+            }
+            dialog.dismiss()
+        }
 
         dialog.show()
     }
+
+    private fun cancelNotification(reminder: Reminder, medicine: Medicine) {
+        val intent = Intent(requireContext(), ReminderReceiver::class.java)
+            .apply {
+                putExtra("ID", reminder.id.toInt())
+                putExtra("dosageFormText", medicine.dosageForm.getLocalizedName(requireContext()))
+                putExtra("dose", reminder.dose)
+                putExtra("time", getTimeStringFromReminder(reminder))
+                putExtra("medicineName", medicine.name)
+        }
+        Log.d("AddReminderFinalFragment", "Scheduling notification with requestCode: ${reminder.id.toInt()}")
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            reminder.id.toInt(), // тот же requestCode, что и при создании
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(pendingIntent)
+    }
+
+    private fun getTimeStringFromReminder(reminder: Reminder): String {
+        // intakeTime — миллисекунды от начала дня
+        val totalSeconds = reminder.intakeTime / 1000L
+        val hours = (totalSeconds / 3600).toInt()
+        val minutes = ((totalSeconds % 3600) / 60).toInt()
+
+        val localTime = LocalTime.of(hours, minutes)
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+
+        return localTime.format(formatter)
+    }
+
 
 
 }

@@ -11,5 +11,7 @@
     <color name="light_orange">#FFEDAC</color>
     <color name="orange">#F9A825</color>
     <color name="red">#C41E3A</color>
-
+    <color name="default_background">#FFEDAC</color>
+    <color name="reminder_marked_taken">#8EF478</color>
+    <color name="reminder_missed">#FD3253</color>
 </resources>

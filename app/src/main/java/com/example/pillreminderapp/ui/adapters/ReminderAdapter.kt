@@ -55,6 +55,12 @@ class ReminderAdapter(
         holder.tvReminderTitle.text = medicineName
         holder.dosageText.text = "${reminder.dose} ${dosageForm.getLocalizedName(context)}"
 
+        when (reminder.mark) {
+            true -> holder.itemView.setBackgroundColor(context.getColor(R.color.reminder_marked_taken)) // зелёный
+            false -> holder.itemView.setBackgroundColor(context.getColor(R.color.reminder_missed)) // красный
+            null -> holder.itemView.setBackgroundColor(context.getColor(R.color.default_background)) // обычный
+        }
+
         holder.itemView.setOnClickListener {
             onReminderClick(reminder)
         }
