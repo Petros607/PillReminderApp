@@ -218,6 +218,10 @@ class HomeFragment : Fragment() {
         }
 
 //        btnEdit.setOnClickListener {
+//        val medicineDao = AppDatabase.getInstance(requireContext()).medicineDao()
+//        val medicine = medicineDao.getById(reminder.medicineId)!!
+//        cancelNotification(reminder, medicine)
+//        scheduleNotification(reminder, medicine)
 //            dialog.dismiss()
 //            val dialogFragment = AddReminderStartDialogFragment.newInstance(reminder.id)
 //            dialogFragment.show(parentFragmentManager, "EditReminderDialog")
@@ -264,6 +268,36 @@ class HomeFragment : Fragment() {
 
         val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(pendingIntent)
+    }
+
+
+    private fun scheduleNotification(reminder: Reminder, medicine: Medicine) {
+        val intent = Intent(requireContext(), ReminderReceiver::class.java)
+            .apply {
+                putExtra("ID", reminder.id.toInt())
+                putExtra("dosageFormText", medicine.dosageForm.getLocalizedName(requireContext()))
+                putExtra("dose", reminder.dose)
+                putExtra("time", getTimeStringFromReminder(reminder))
+                putExtra("medicineName", medicine.name)
+            }
+        Log.d("AddReminderFinalFragment", "Scheduling notification with requestCode: ${reminder.id.toInt()}")
+
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            reminder.id.toInt(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val triggerTime = reminder.intakeDate + reminder.intakeTime - reminder.notificationTime
+
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            triggerTime,
+            pendingIntent
+        )
     }
 
     private fun getTimeStringFromReminder(reminder: Reminder): String {
