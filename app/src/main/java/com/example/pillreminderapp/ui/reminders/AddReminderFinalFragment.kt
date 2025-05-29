@@ -26,6 +26,8 @@ import com.example.pillreminderapp.R
 import java.time.LocalDate
 import androidx.lifecycle.lifecycleScope
 import com.example.pillreminderapp.db.AppDatabase
+import com.example.pillreminderapp.db.entities.DosageForm
+import com.example.pillreminderapp.db.entities.Medicine
 import com.example.pillreminderapp.db.entities.Reminder
 import com.example.pillreminderapp.reminder.ReminderReceiver
 import com.example.pillreminderapp.ui.home.HomeViewModel
@@ -248,8 +250,6 @@ class AddReminderFinalFragment : DialogFragment() {
         spinner.setSelection(0)
     }
 
-
-
     @RequiresApi(Build.VERSION_CODES.O)
     private suspend fun saveReminders(
         medicineId: Long,
@@ -258,8 +258,6 @@ class AddReminderFinalFragment : DialogFragment() {
         view: View
     ) {
         val reminderDao = AppDatabase.getInstance(requireContext()).reminderDao()
-        val medicineDao = AppDatabase.getInstance(requireContext()).medicineDao()
-
 
         val dosePair = collectDoseFromUI(view)
         if (dosePair == null) {
@@ -289,11 +287,15 @@ class AddReminderFinalFragment : DialogFragment() {
                 notificationTime = notificationOffset
             )
 
-            withContext(Dispatchers.IO) {
-                reminderDao.insert(reminder)
+            val reminderWithId = withContext(Dispatchers.IO) {
+                val id = reminderDao.insert(reminder)
+                reminder.copy(id = id)
             }
+            val medicineDao = AppDatabase.getInstance(requireContext()).medicineDao()
+
             withContext(Dispatchers.Main) {
-                scheduleNotification(reminder, timeString, medicineDao.getById(reminder.medicineId)!!.name)
+                val medicine = medicineDao.getById(reminder.medicineId)!!
+                scheduleNotification(reminderWithId, medicine)
             }
         }
 
@@ -318,17 +320,21 @@ class AddReminderFinalFragment : DialogFragment() {
         }
     }
 
-    private fun scheduleNotification(reminder: Reminder, timeString: String, medicineName: String) {
-        val intent = Intent(requireContext(), ReminderReceiver::class.java).apply {
-            putExtra("formName", currentFormName)
+    private fun scheduleNotification(reminder: Reminder, medicine: Medicine) {
+        val intent = Intent(requireContext(), ReminderReceiver::class.java)
+            .apply {
+            putExtra("ID", reminder.id.toInt())
+            putExtra("dosageFormText", medicine.dosageForm.getLocalizedName(requireContext()))
             putExtra("dose", reminder.dose)
-            putExtra("time", timeString)
-            putExtra("medicineName", medicineName)
+            putExtra("time", getTimeStringFromReminder(reminder))
+            putExtra("medicineName", medicine.name)
         }
+        Log.d("AddReminderFinalFragment", "Scheduling notification with requestCode: ${reminder.id.toInt()}")
+
 
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
-            reminder.hashCode(),
+            reminder.id.toInt(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -343,6 +349,15 @@ class AddReminderFinalFragment : DialogFragment() {
         )
     }
 
+    private fun getTimeStringFromReminder(reminder: Reminder): String {
+        // intakeTime — миллисекунды от начала дня
+        val totalSeconds = reminder.intakeTime / 1000L
+        val hours = (totalSeconds / 3600).toInt()
+        val minutes = ((totalSeconds % 3600) / 60).toInt()
 
+        val localTime = LocalTime.of(hours, minutes)
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
 
+        return localTime.format(formatter)
+    }
 }

@@ -1,21 +1,19 @@
 package com.example.pillreminderapp.reminder
 
-import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.pillreminderapp.R
-import com.example.pillreminderapp.db.entities.Reminder
-import kotlin.random.Random
+import android.util.Log
+
 
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val formName = intent.getStringExtra("formName") ?: "Лекарства"
+        val dosageFormText = intent.getStringExtra("dosageFormText") ?: "Лекарства"
         val dose = intent.getFloatExtra("dose", 0f)
         val time = intent.getStringExtra("time") ?: ""
         val medicineName = intent.getStringExtra("medicineName") ?: ""
@@ -28,10 +26,16 @@ class ReminderReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
+        Log.d("ReminderReceiver", "Received intent with extras:")
+        intent.extras?.keySet()?.forEach { key ->
+            Log.d("ReminderReceiver", "$key = ${intent.extras?.get(key)}")
+        }
+
+
         val notification = NotificationCompat.Builder(context, "reminder_channel")
             .setSmallIcon(R.drawable.ic_menu_pill) // добавь такой ресурс
             .setContentTitle("Пора принять лекарство")
-            .setContentText("Примите в $time - $dose $formName - $medicineName.")
+            .setContentText("Примите в $time - $dose $dosageFormText - $medicineName.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
