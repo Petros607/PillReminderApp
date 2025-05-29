@@ -173,7 +173,21 @@ class HomeFragment : Fragment() {
         val formattedTime = formatter.format(date)
         tvSubtitle.text = "Время: $formattedTime"
 
+        val tvDescription = dialogView.findViewById<TextView>(R.id.tvDescription)
+        val tvNotificationTime = dialogView.findViewById<TextView>(R.id.tvNotificationTime)
 
+        tvDescription.text = if (!reminder.description.isNullOrBlank()) {
+            "Описание: ${reminder.description}"
+        } else {
+            "Описание: отсутствует"
+        }
+
+        val notificationMinutes = reminder.notificationTime / 60000 // 60000 мс = 1 мин
+        tvNotificationTime.text = if (notificationMinutes == 0L) {
+            "Уведомление придёт во время приёма"
+        } else {
+            "Уведомление придёт за $notificationMinutes мин до приёма"
+        }
 
         val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setView(dialogView)
@@ -196,14 +210,23 @@ class HomeFragment : Fragment() {
 //            dialogFragment.show(parentFragmentManager, "EditReminderDialog")
 //        }
 
-//        btnMarkTaken.setOnClickListener {
-//            lifecycleScope.launch {
-//                val updatedReminder = reminder.copy(isTaken = true)
-//                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
-//                homeViewModel.loadReminders()
-//            }
-//            dialog.dismiss()
-//        }
+        btnMarkTaken.setOnClickListener {
+            lifecycleScope.launch {
+                val updatedReminder = reminder.copy(mark = true)
+                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
+                homeViewModel.loadReminders()
+            }
+            dialog.dismiss()
+        }
+
+        tvMissed.setOnClickListener {
+            lifecycleScope.launch {
+                val updatedReminder = reminder.copy(mark = false)
+                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
+                homeViewModel.loadReminders()
+            }
+            dialog.dismiss()
+        }
 
         dialog.show()
     }
