@@ -54,13 +54,12 @@ class HomeFragment : Fragment() {
             medicineInfo = emptyMap(),
             context = requireContext()
         ) { reminder ->
-            showReminderDetailsDialog(reminder) // 👈 вызываем диалог
+            showReminderDetailsDialog(reminder)
         }
         // Пока создаём с пустыми списками
         reminderAdapter = ReminderAdapter(emptyList(), emptyMap(), requireContext(), { reminder ->
-            showReminderDetailsDialog(reminder) // 👈 вызываем диалог
+            showReminderDetailsDialog(reminder)
         })
-        )
 
         setupDateFilters()
 
@@ -68,13 +67,13 @@ class HomeFragment : Fragment() {
         binding.remindersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Подписка на данные
-        homeViewModel.reminders.observe(viewLifecycleOwner) { reminders ->
+        homeViewModel.filteredReminders.observe(viewLifecycleOwner) { reminders ->
             val currentInfo = homeViewModel.medicineInfo.value ?: emptyMap()
             reminderAdapter.updateData(reminders, currentInfo)
         }
 
         homeViewModel.medicineInfo.observe(viewLifecycleOwner) { medicineInfo ->
-            val currentReminders = homeViewModel.reminders.value ?: emptyList()
+            val currentReminders = homeViewModel.filteredReminders.value ?: emptyList()
             reminderAdapter.updateData(currentReminders, medicineInfo)
         }
 
