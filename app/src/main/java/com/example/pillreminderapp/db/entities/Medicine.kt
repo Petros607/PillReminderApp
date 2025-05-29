@@ -30,14 +30,83 @@ enum class DosageForm {
     }
 }
 
+enum class ActiveSubstance(val displayName: String) {
+    PARACETAMOL("Парацетамол"),
+    IBUPROFEN("Ибупрофен"),
+    AMOXICILLIN("Амоксициллин"),
+    DROTAVERINE("Но-шпа"),
+    ASPIRIN("Аспирин"),
+    LOPERAMIDE("Лоперамид"),
+    OMEPRAZOLE("Омепразол"),
+    METFORMIN("Метформин"),
+    ATORVASTATIN("Аторвастатин"),
+    AMLODIPINE("Амлодипин"),
+    BISOPROLOL("Бисопролол"),
+    LOSARTAN("Лозартан"),
+    CEFTRIAXONE("Цефтриаксон"),
+    AZITHROMYCIN("Азитромицин"),
+    LEVOFLOXACIN("Левофлоксацин"),
+    METRONIDAZOLE("Метронидазол"),
+    DICLOFENAC("Диклофенак"),
+    KETOROLAC("Кеторолак"),
+    PANTOPRAZOLE("Пантопразол"),
+    SIMVASTATIN("Симвастатин"),
+    VALSARTAN("Валсартан"),
+    ENALAPRIL("Эналаприл"),
+    FEXOFENADINE("Фексофенадин"),
+    LORATADINE("Лоратадин"),
+    CETIRIZINE("Цетиризин"),
+    DEXAMETHASONE("Дексаметазон"),
+    PREDNISOLONE("Преднизолон"),
+    INSULIN("Инсулин"),
+    SALBUTAMOL("Сальбутамол"),
+    BUDESONIDE("Будесонид"),
+    OTHER("Другое");
+
+    override fun toString(): String = displayName
+}
+
+enum class Manufacturer(val displayName: String) {
+    BAYER("Байер"),
+    PFIZER("Пфайзер"),
+    GEDEON("Гедеон Рихтер"),
+    TEVA("Тева"),
+    NOVARTIS("Новартис"),
+    SANOFI("Санофи"),
+    ROCHE("Рош"),
+    MERCK("Мерк"),
+    ASTRAZENECA("АстраЗенека"),
+    JOHNSON_JOHNSON("Джонсон"),
+    ABBOTT("Эбботт"),
+    SERVIER("Сервье"),
+    TAKEDA("Такеда"),
+    ELI_LILLY("Эли Лилли"),
+    BIOCAD("Биокад"),
+    PHARMSTANDARD("Фармстандарт"),
+    VALENTA("Валента Фарма"),
+    OZON("Озон"),
+    VEROPHARM("Верофарм"),
+    SOTEX("Сотекс"),
+    AKRIKHIN("Акрихин"),
+    SYNTHESIS("Синтез"),
+    DALHIMFARM("Дальхимфарм"),
+    PHARMASOFT("Фармасофт"),
+    OBLENKARF("Оболенское"),
+    MOSHIMFARM("Мосхимфарм"),
+    OTHER("Другое");
+
+    override fun toString(): String = displayName
+}
+
+
 @Entity(tableName = "medicines")
 data class Medicine(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
 
     val name: String,
-    val substance: String,
-    val manufacturer: String,
+    val substance: ActiveSubstance,
+    val manufacturer: Manufacturer,
 
     @ColumnInfo(name = "dosage_form")
     val dosageForm: DosageForm

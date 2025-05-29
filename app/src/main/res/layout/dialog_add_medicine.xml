@@ -4,87 +4,115 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="16dp"
     android:background="@drawable/rounded_background"
-    android:elevation="8dp">
+    android:elevation="8dp"
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/dialog_add_medicine_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Добавление лекарства"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"
         android:gravity="center"
-        android:layout_marginBottom="16dp"/>
+        android:text="Добавление лекарства"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/dialog_add_medicine_edit_medicine_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:hint="Ввод названия лекарства"
         android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_title"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="4dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_title" />
 
-    <EditText
-        android:id="@+id/dialog_add_medicine_edit_active_substance"
-        android:layout_width="0dp"
+    <!-- Добавляем лейбл и спиннер для активного вещества -->
+    <TextView
+        android:id="@+id/dialog_add_medicine_label_substance"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Ввод активного вещества"
-        android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_edit_medicine_name"
+        android:layout_marginTop="14dp"
+        android:text="Активное вещество:"
+        android:textSize="13sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_edit_medicine_name" />
 
-    <EditText
-        android:id="@+id/dialog_add_medicine_edit_firm"
-        android:layout_width="0dp"
+    <Spinner
+        android:id="@+id/dialog_add_medicine_spinner_substance"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Ввод фирмы изготовителя"
-        android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_edit_active_substance"
+        android:layout_marginTop="11dp"
+        android:layout_marginStart="20dp"
+        android:textSize="13sp"
+        app:layout_constraintStart_toEndOf="@+id/dialog_add_medicine_label_substance"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_add_medicine_edit_medicine_name" />
+
+    <!-- Добавляем лейбл и спиннер для производителя -->
+    <TextView
+        android:id="@+id/dialog_add_medicine_label_firm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="Производитель:"
+        android:textSize="13sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_label_substance" />
+
+    <Spinner
+        android:id="@+id/dialog_add_medicine_spinner_firm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="46dp"
+        android:layout_marginTop="8dp"
+        android:textSize="13sp"
+        app:layout_constraintStart_toEndOf="@+id/dialog_add_medicine_label_firm"
+        app:layout_constraintTop_toBottomOf="@+id/dialog_add_medicine_spinner_substance" />
 
     <TextView
         android:id="@+id/dialog_add_medicine_label_form"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="15dp"
         android:text=" Форма выпуска:"
-        android:textSize="18sp"
+        android:textSize="13sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_edit_firm" />
+        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_label_firm" />
 
     <Spinner
         android:id="@+id/dialog_add_medicine_spinner_form"
-        android:layout_marginTop="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="42dp"
+        android:textSize="13sp"
         app:layout_constraintStart_toEndOf="@+id/dialog_add_medicine_label_form"
-        app:layout_constraintTop_toBottomOf="@+id/dialog_add_medicine_edit_firm" />
+        app:layout_constraintTop_toBottomOf="@+id/dialog_add_medicine_spinner_firm" />
 
     <Button
         android:id="@+id/dialog_add_medicine_btn_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Готово"
+        android:layout_marginTop="16dp"
         android:backgroundTint="@color/orange"
+        android:text="Готово"
         android:textColor="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_spinner_form"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dialog_add_medicine_spinner_form" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
