@@ -178,31 +178,60 @@ class AddReminderFinalFragment : DialogFragment() {
 
         val doseTextView = view.findViewById<TextView>(R.id.text_dose_final)
         doseTextView.setOnClickListener {
-            val inputEditText = EditText(requireContext()).apply {
-                inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-                setText(if (doseTextView.text.toString() == "Доза") "" else doseTextView.text.toString())
-                setSelection(text.length)
-            }
-
-            AlertDialog.Builder(requireContext())
-                .setTitle("Введите дозу")
-                .setView(inputEditText)
-                .setPositiveButton("OK") { dialog, _ ->
-                    val input = inputEditText.text.toString()
-                    val doseValue = input.toFloatOrNull()
-                    if (doseValue != null && doseValue <= 10f && doseValue > 0f) {
-                        doseTextView.text = input
-                        doseTextView.setTextColor(resources.getColor(R.color.black, null))
-                    } else {
-                        Toast.makeText(requireContext(), "Доза должна быть числом от 0.1 до 10.0", Toast.LENGTH_SHORT).show()
-                    }
-                    dialog.dismiss()
-                }
-                .setNegativeButton("Отмена") { dialog, _ ->
-                    dialog.cancel()
-                }
-                .show()
+            showDoseInputDialog(doseTextView)
         }
+
+        doseTextView.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                showDoseInputDialog(doseTextView)
+            }
+        }
+    }
+
+    private fun setupDoseTextView(view: View) {
+        val doseTextView = view.findViewById<TextView>(R.id.text_dose_final)
+
+        doseTextView.apply {
+            isFocusableInTouchMode = true
+            setOnEditorActionListener { _, _, _ ->
+                showDoseInputDialog(this)
+                true
+            }
+            setOnClickListener {
+                requestFocus()
+                showDoseInputDialog(this)
+            }
+        }
+    }
+
+    private fun showDoseInputDialog(textView: TextView) {
+        val inputEditText = EditText(requireContext()).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or
+                    android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+            setText(if (textView.text.toString() == "Доза") "" else textView.text.toString())
+            setSelection(text.length)
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Введите дозу")
+            .setView(inputEditText)
+            .setPositiveButton("OK") { dialog, _ ->
+                val input = inputEditText.text.toString()
+                val doseValue = input.toFloatOrNull()
+                if (doseValue != null && doseValue <= 10f && doseValue > 0f) {
+                    textView.text = input
+                    textView.setTextColor(resources.getColor(R.color.black, null))
+                } else {
+                    Toast.makeText(requireContext(),
+                        "Доза должна быть числом от 0.1 до 10.0",
+                        Toast.LENGTH_SHORT).show()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Отмена") { dialog, _ ->
+                dialog.cancel()
+            }
+            .show()
     }
 
 
