@@ -16,13 +16,14 @@ import java.util.*
 class ReminderAdapter(
     private var reminders: List<Reminder>,
     private var medicineInfo: Map<Long, Pair<String, DosageForm>>,
-    private val context: Context
+    private val context: Context,
+    private val onReminderClick: (Reminder) -> Unit
 ) : RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>() {
 
     inner class ReminderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val timeText: TextView = itemView.findViewById(R.id.text_reminder_time)
+        val tvReminderTitle: TextView = itemView.findViewById(R.id.text_reminder_medicine)
+        val tvReminderTime: TextView = itemView.findViewById(R.id.text_reminder_time)
         val dateText: TextView = itemView.findViewById(R.id.text_reminder_date)
-        val medicineText: TextView = itemView.findViewById(R.id.text_reminder_medicine)
         val dosageText: TextView = itemView.findViewById(R.id.text_reminder_dosage)
     }
 
@@ -37,18 +38,26 @@ class ReminderAdapter(
 
         // Форматирование времени и даты
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        timeFormat.timeZone = TimeZone.getTimeZone("UTC") // ключевой момент
+
         val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
         val timeStr = timeFormat.format(Date(reminder.intakeTime))
         val dateStr = dateFormat.format(Date(reminder.intakeDate))
 
-        holder.timeText.text = timeStr
+        holder.tvReminderTime.text = timeStr
         holder.dateText.text = dateStr
+
 
         val (medicineName, dosageForm) = medicineInfo[reminder.medicineId]
             ?: ("Unknown" to DosageForm.OTHER)
 
-        holder.medicineText.text = medicineName
+        holder.tvReminderTitle.text = medicineName
         holder.dosageText.text = "${reminder.dose} ${dosageForm.getLocalizedName(context)}"
+
+        holder.itemView.setOnClickListener {
+            onReminderClick(reminder)
+        }
     }
 
     override fun getItemCount(): Int = reminders.size

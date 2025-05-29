@@ -8,7 +8,7 @@ import com.example.pillreminderapp.db.entities.*
 
 @Database(
     entities = [Medicine::class, Reminder::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(DosageFormConverter::class)
