@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import com.google.android.material.chip.Chip
 
 class HomeFragment : Fragment() {
 
@@ -43,7 +45,8 @@ class HomeFragment : Fragment() {
         val db = AppDatabase.getInstance(requireContext())
 
         // Создаем ViewModel с фабрикой (HomeViewModelFactory нужно реализовать)
-        homeViewModel = ViewModelProvider(this, HomeViewModelFactory(db)).get(HomeViewModel::class.java)
+        homeViewModel = ViewModelProvider(requireActivity(), HomeViewModelFactory(db))
+            .get(HomeViewModel::class.java)
 
         // Инициализируем адаптер с пустым списком
         reminderAdapter = ReminderAdapter(
@@ -57,6 +60,10 @@ class HomeFragment : Fragment() {
         reminderAdapter = ReminderAdapter(emptyList(), emptyMap(), requireContext(), { reminder ->
             showReminderDetailsDialog(reminder) // 👈 вызываем диалог
         })
+        )
+
+        setupDateFilters()
+
         binding.remindersRecyclerView.adapter = reminderAdapter
         binding.remindersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -83,6 +90,43 @@ class HomeFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun setupDateFilters() {
+        val chipGroup = binding.filterChipGroup
+        val todayChip = createFilterChip("Сегодня", FilterType.TODAY)
+        val tomorrowChip = createFilterChip("Завтра", FilterType.TOMORROW)
+        val weekChip = createFilterChip("Неделя", FilterType.WEEK)
+        val allChip = createFilterChip("Все", FilterType.ALL)
+
+        chipGroup.addView(todayChip)
+        chipGroup.addView(tomorrowChip)
+        chipGroup.addView(weekChip)
+        chipGroup.addView(allChip)
+
+        // Выбираем "Все" по умолчанию
+        allChip.isChecked = true
+
+        chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            val chip = group.findViewById<Chip>(checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener)
+            val filterType = chip.tag as FilterType
+            homeViewModel.applyFilter(filterType)
+        }
+    }
+
+    enum class FilterType {
+        TODAY, TOMORROW, WEEK, ALL
+    }
+
+    private fun createFilterChip(text: String, filterType: FilterType): Chip {
+        return Chip(requireContext()).apply {
+            this.text = text
+            tag = filterType
+            isCheckable = true
+            setEnsureMinTouchTargetSize(false)
+            setChipBackgroundColorResource(R.color.chip_background_selector)
+            setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.chip_text_selector))
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

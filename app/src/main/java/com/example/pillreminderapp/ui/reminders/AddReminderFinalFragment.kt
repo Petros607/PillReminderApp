@@ -17,11 +17,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.pillreminderapp.R
 import java.time.LocalDate
 import androidx.lifecycle.lifecycleScope
 import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.db.entities.Reminder
+import com.example.pillreminderapp.ui.home.HomeViewModel
+import com.example.pillreminderapp.ui.home.HomeViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,6 +60,11 @@ class AddReminderFinalFragment : DialogFragment() {
                     description = arguments?.getString("description") ?: "",
                     view = view
                 )
+
+                val homeViewModel = ViewModelProvider(requireActivity(), HomeViewModelFactory(AppDatabase.getInstance(requireContext())))
+                    .get(HomeViewModel::class.java)
+
+                homeViewModel.loadReminders()
             }
         }
 
@@ -182,11 +190,11 @@ class AddReminderFinalFragment : DialogFragment() {
                 .setPositiveButton("OK") { dialog, _ ->
                     val input = inputEditText.text.toString()
                     val doseValue = input.toFloatOrNull()
-                    if (doseValue != null && doseValue <= 10f) {
+                    if (doseValue != null && doseValue <= 10f && doseValue > 0f) {
                         doseTextView.text = input
                         doseTextView.setTextColor(resources.getColor(R.color.black, null))
                     } else {
-                        Toast.makeText(requireContext(), "Доза должна быть числом не больше 10", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Доза должна быть числом от 0.1 до 10.0", Toast.LENGTH_SHORT).show()
                     }
                     dialog.dismiss()
                 }
