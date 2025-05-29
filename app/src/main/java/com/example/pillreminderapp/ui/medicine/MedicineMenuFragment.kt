@@ -178,6 +178,19 @@ class MedicineMenuFragment : Fragment() {
 
             lifecycleScope.launch {
                 val db = AppDatabase.getInstance(requireContext())
+                val existing = db.medicineDao().getByName(name)
+
+                if (medicine == null && existing != null) {
+                    nameEdit.error = getString(R.string.error_name_not_unique) // Добавь эту строку в strings.xml
+                    return@launch
+                }
+
+                val med = if (medicine == null) {
+                    Medicine(name = name, substance = substance, manufacturer = firm, dosageForm = dosageForm)
+                } else {
+                    medicine.copy(name = name, substance = substance, manufacturer = firm, dosageForm = dosageForm)
+                }
+
                 if (medicine == null) {
                     db.medicineDao().insert(med)
                     Log.d("Table medicine", "medicine сохранен!")
@@ -185,8 +198,9 @@ class MedicineMenuFragment : Fragment() {
                     db.medicineDao().update(med)
                 }
                 loadMedicines()
+                dialog.dismiss()
             }
-            dialog.dismiss()
+
         }
 
         dialog.show()

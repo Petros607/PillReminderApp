@@ -28,6 +28,8 @@
     <string name="error_empty_name">Введите название лекарства</string>
     <string name="error_name_too_long">Название должно быть не более 25 символов</string>
     <string name="error_invalid_name">Название содержит недопустимые символы</string>
+    <string name="error_name_not_unique">Лекарство с таким названием уже существует</string>
+
 
     <string name="error_empty_substance">Введите активное вещество</string>
     <string name="error_substance_too_long">Активное вещество должно быть не более 50 символов</string>
