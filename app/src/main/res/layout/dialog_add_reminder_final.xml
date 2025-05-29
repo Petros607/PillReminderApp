@@ -26,43 +26,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Приемы"
+            android:text="Прием"
             android:textStyle="bold"
             android:textSize="16sp"
             android:layout_marginBottom="8dp" />
 
-        <!-- Контейнер для приёмов -->
-        <LinearLayout
-            android:id="@+id/doseListLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-
-        <!-- Кнопка добавить прием -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Еще"
-                android:textSize="14sp"
-                android:textColor="@color/black" />
-
-            <ImageButton
-                android:id="@+id/btn_add_dose_time"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:src="@android:drawable/ic_input_add"
-                android:contentDescription="Добавить прием"
-                 />
-        </LinearLayout>
+        <include
+            android:id="@+id/include_dose_time"
+            layout="@layout/item_dose_time"/>
 
         <!-- Напоминания -->
         <TextView
@@ -73,40 +44,9 @@
             android:textSize="16sp"
             android:layout_marginBottom="8dp" />
 
-        <!-- Контейнер для напоминаний -->
-        <LinearLayout
-            android:id="@+id/reminderListLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-
-        <!-- Кнопка добавить напоминание -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="24dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Еще"
-                android:textSize="14sp"
-                android:textColor="@color/black" />
-
-            <ImageButton
-                android:id="@+id/btn_add_reminder"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-
-                android:src="@android:drawable/ic_input_add"
-                android:contentDescription="Добавить напоминание"
-                 />
-        </LinearLayout>
-
+        <include
+            android:id="@+id/include_reminder_time"
+            layout="@layout/item_reminder_time"/>
 
         <!-- Кнопка сохранить -->
         <Button

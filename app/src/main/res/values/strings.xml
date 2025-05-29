@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">PillReminderApp</string>
-    <string name="title_home">Home</string>
-    <string name="title_medicine">Medicine</string>
+    <string name="title_home">Напоминания</string>
+    <string name="title_medicine">Медицина</string>
     <string-array name="medicine_forms">
         <item>Таблетка</item>
         <item>Капсула</item>
@@ -24,7 +24,18 @@
     <string name="dosage_other">Иное</string>
     <string name="add_medicine">Добавить лекарство</string>
     <string name="edit_medicine">Редактирование лекарства</string>
+    <!-- Ошибки валидации -->
     <string name="error_empty_name">Введите название лекарства</string>
+    <string name="error_name_too_long">Название должно быть не более 25 символов</string>
+    <string name="error_invalid_name">Название содержит недопустимые символы</string>
+
+    <string name="error_empty_substance">Введите активное вещество</string>
+    <string name="error_substance_too_long">Активное вещество должно быть не более 50 символов</string>
+    <string name="error_invalid_substance">Активное вещество содержит недопустимые символы</string>
+
+    <string name="error_empty_manufacturer">Введите производителя</string>
+    <string name="error_manufacturer_too_long">Название производителя должно быть не более 50 символов</string>
+    <string name="error_invalid_manufacturer">Название производителя содержит недопустимые символы</string>
 
     <string name="period_daily">Каждый день</string>
     <string name="period_every_other_day">Через день</string>

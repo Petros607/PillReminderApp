@@ -7,17 +7,15 @@ import com.example.pillreminderapp.db.dao.*
 import com.example.pillreminderapp.db.entities.*
 
 @Database(
-    entities = [Medicine::class, Reminder::class, Intake::class, Notification::class],
-    version = 1,
+    entities = [Medicine::class, Reminder::class],
+    version = 3,
     exportSchema = false
 )
-@TypeConverters(DosageFormConverter::class, PeriodTypeConverter::class)
+@TypeConverters(DosageFormConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun medicineDao(): MedicineDao
     abstract fun reminderDao(): ReminderDao
-    abstract fun intakeDao(): IntakeDao
-    abstract fun notificationDao(): NotificationDao
 
     companion object {
         @Volatile
@@ -29,7 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "med_reminder_db"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }
