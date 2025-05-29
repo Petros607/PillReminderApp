@@ -196,14 +196,23 @@ class HomeFragment : Fragment() {
 //            dialogFragment.show(parentFragmentManager, "EditReminderDialog")
 //        }
 
-//        btnMarkTaken.setOnClickListener {
-//            lifecycleScope.launch {
-//                val updatedReminder = reminder.copy(isTaken = true)
-//                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
-//                homeViewModel.loadReminders()
-//            }
-//            dialog.dismiss()
-//        }
+        btnMarkTaken.setOnClickListener {
+            lifecycleScope.launch {
+                val updatedReminder = reminder.copy(mark = true)
+                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
+                homeViewModel.loadReminders()
+            }
+            dialog.dismiss()
+        }
+
+        tvMissed.setOnClickListener {
+            lifecycleScope.launch {
+                val updatedReminder = reminder.copy(mark = false)
+                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
+                homeViewModel.loadReminders()
+            }
+            dialog.dismiss()
+        }
 
         dialog.show()
     }
