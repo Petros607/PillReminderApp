@@ -99,7 +99,7 @@ class AddReminderStartDialogFragment : DialogFragment() {
             searchResults.clear()
             searchResults.addAll(medicines)
             adapter.clear()
-            adapter.addAll(medicines.map { it.name })
+            adapter.addAll(medicines.map { "${it.name} (${it.manufacturer})" })
             adapter.notifyDataSetChanged()
         }
     }
