@@ -1,8 +1,12 @@
 package com.example.pillreminderapp.ui.reminders
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.Dialog
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +27,7 @@ import java.time.LocalDate
 import androidx.lifecycle.lifecycleScope
 import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.db.entities.Reminder
+import com.example.pillreminderapp.reminder.ReminderReceiver
 import com.example.pillreminderapp.ui.home.HomeViewModel
 import com.example.pillreminderapp.ui.home.HomeViewModelFactory
 import kotlinx.coroutines.Dispatchers
@@ -93,8 +98,6 @@ class AddReminderFinalFragment : DialogFragment() {
             println("Argument key=$key, value=$value")
         }
     }
-
-
 
     private fun loadMedicineAndDisplayForm(medicineId: Long, view: View) {
         lifecycleScope.launch {
@@ -255,6 +258,8 @@ class AddReminderFinalFragment : DialogFragment() {
         view: View
     ) {
         val reminderDao = AppDatabase.getInstance(requireContext()).reminderDao()
+        val medicineDao = AppDatabase.getInstance(requireContext()).medicineDao()
+
 
         val dosePair = collectDoseFromUI(view)
         if (dosePair == null) {
@@ -287,6 +292,9 @@ class AddReminderFinalFragment : DialogFragment() {
             withContext(Dispatchers.IO) {
                 reminderDao.insert(reminder)
             }
+            withContext(Dispatchers.Main) {
+                scheduleNotification(reminder, timeString, medicineDao.getById(reminder.medicineId)!!.name)
+            }
         }
 
         Toast.makeText(requireContext(), "Напоминание сохранено", Toast.LENGTH_SHORT).show()
@@ -309,5 +317,32 @@ class AddReminderFinalFragment : DialogFragment() {
             return fragment
         }
     }
+
+    private fun scheduleNotification(reminder: Reminder, timeString: String, medicineName: String) {
+        val intent = Intent(requireContext(), ReminderReceiver::class.java).apply {
+            putExtra("formName", currentFormName)
+            putExtra("dose", reminder.dose)
+            putExtra("time", timeString)
+            putExtra("medicineName", medicineName)
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            reminder.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val triggerTime = reminder.intakeDate + reminder.intakeTime - reminder.notificationTime
+
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            triggerTime,
+            pendingIntent
+        )
+    }
+
+
 
 }
