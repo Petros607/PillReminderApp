@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.pillreminderapp.R
 import com.example.pillreminderapp.db.AppDatabase
 import com.example.pillreminderapp.db.entities.Reminder
+import com.example.pillreminderapp.db.entities.Medicine
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -27,7 +28,11 @@ import java.util.Locale
 class EditReminderDialog : DialogFragment() {
 
     private var reminder: Reminder? = null
+    private var medicine: Medicine? = null
+
+    private lateinit var tv_title_edit_reminder: TextView
     private lateinit var spinner: Spinner
+
     private val timeOptions = listOf(
         "В момент приема" to 0L,
         "За 10 минут" to 10L,
@@ -46,6 +51,8 @@ class EditReminderDialog : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        tv_title_edit_reminder = view.findViewById(R.id.tv_title_edit_reminder)
+
         // 1. Сначала инициализируем Spinner с пустым адаптером
         spinner = view.findViewById(R.id.spinner_reminder_time)
         setupEmptySpinner()
@@ -56,6 +63,7 @@ class EditReminderDialog : DialogFragment() {
             return
         }
         loadReminder(reminderId)
+        loadMedicine()
     }
 
     private fun setupEmptySpinner() {
@@ -81,11 +89,20 @@ class EditReminderDialog : DialogFragment() {
         }
     }
 
+    private fun loadMedicine() {
+        lifecycleScope.launch {
+            val medicineDao = AppDatabase.getInstance(requireContext()).medicineDao()
+            medicine = medicineDao.getById(reminder!!.medicineId)
+        }
+    }
+
     private fun updateUI(reminder: Reminder) {
         // Заполнение основных полей
         view?.findViewById<EditText>(R.id.edit_description)?.setText(reminder.description ?: "")
         view?.findViewById<TextView>(R.id.text_start_date)?.text = convertMillisToDate(reminder.intakeDate)
         view?.findViewById<TextView>(R.id.text_dose_final)?.setText(reminder.dose.toString())
+
+//        tv_title_edit_reminder.text = medicine!!.name
 
         // Время приема
         val calendar = Calendar.getInstance().apply { timeInMillis = reminder.intakeTime }
