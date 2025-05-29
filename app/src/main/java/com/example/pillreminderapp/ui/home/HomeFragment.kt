@@ -5,14 +5,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pillreminderapp.DevInfoActivity
+import com.example.pillreminderapp.R
 import com.example.pillreminderapp.databinding.FragmentHomeBinding
 import com.example.pillreminderapp.db.AppDatabase
+import com.example.pillreminderapp.db.entities.Reminder
 import com.example.pillreminderapp.ui.adapters.ReminderAdapter
 import com.example.pillreminderapp.ui.reminders.AddReminderStartDialogFragment
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class HomeFragment : Fragment() {
 
@@ -40,9 +50,13 @@ class HomeFragment : Fragment() {
             reminders = emptyList(),
             medicineInfo = emptyMap(),
             context = requireContext()
-        )
+        ) { reminder ->
+            showReminderDetailsDialog(reminder) // 👈 вызываем диалог
+        }
         // Пока создаём с пустыми списками
-        reminderAdapter = ReminderAdapter(emptyList(), emptyMap(), requireContext())
+        reminderAdapter = ReminderAdapter(emptyList(), emptyMap(), requireContext(), { reminder ->
+            showReminderDetailsDialog(reminder) // 👈 вызываем диалог
+        })
         binding.remindersRecyclerView.adapter = reminderAdapter
         binding.remindersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -87,4 +101,69 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun showReminderDetailsDialog(reminder: Reminder) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_reminder_info, null)
+
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvTitle)
+        val tvSubtitle = dialogView.findViewById<TextView>(R.id.tvSubtitle)
+        val btnEdit = dialogView.findViewById<Button>(R.id.btnEdit)
+        val btnDelete = dialogView.findViewById<Button>(R.id.btnDelete)
+        val btnMarkTaken = dialogView.findViewById<Button>(R.id.btnMarkTaken)
+        val tvMissed = dialogView.findViewById<TextView>(R.id.tvMissed)
+
+        // Установка текста
+        lifecycleScope.launch {
+            val medicine = AppDatabase.getInstance(requireContext())
+                .medicineDao()
+                .getById(reminder.medicineId)
+
+            val medicineName = medicine?.name ?: "Без названия"
+            tvTitle.text = medicineName
+
+        }
+
+        val date = Date(reminder.intakeTime)
+        val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+        formatter.timeZone = TimeZone.getTimeZone("UTC") // ⬅️ важно!
+
+        val formattedTime = formatter.format(date)
+        tvSubtitle.text = "Время: $formattedTime"
+
+
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.setCanceledOnTouchOutside(true)
+
+        btnDelete.setOnClickListener {
+            lifecycleScope.launch {
+                AppDatabase.getInstance(requireContext()).reminderDao().delete(reminder)
+                homeViewModel.loadReminders()
+            }
+            dialog.dismiss()
+        }
+
+//        btnEdit.setOnClickListener {
+//            dialog.dismiss()
+//            val dialogFragment = AddReminderStartDialogFragment.newInstance(reminder.id)
+//            dialogFragment.show(parentFragmentManager, "EditReminderDialog")
+//        }
+
+//        btnMarkTaken.setOnClickListener {
+//            lifecycleScope.launch {
+//                val updatedReminder = reminder.copy(isTaken = true)
+//                AppDatabase.getInstance(requireContext()).reminderDao().update(updatedReminder)
+//                homeViewModel.loadReminders()
+//            }
+//            dialog.dismiss()
+//        }
+
+        dialog.show()
+    }
+
+
 }

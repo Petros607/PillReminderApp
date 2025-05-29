@@ -49,5 +49,7 @@ data class Reminder(
     val dose: Float,
 
     @ColumnInfo(name = "notification_time")
-    val notificationTime: Long
+    val notificationTime: Long,
+
+    val mark: Boolean? = null
 )
