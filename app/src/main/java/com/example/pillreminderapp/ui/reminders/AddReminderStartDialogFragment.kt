@@ -51,6 +51,11 @@ class AddReminderStartDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
 
+            if (description.length > 50) {
+                binding.editDescription.error = "Описание не должно превышать 50 символов"
+                return@setOnClickListener
+            }
+
             val args = Bundle().apply {
                 putLong("medicineId", selectedMedicine!!.id)
                 putSerializable("periodType", periodType)

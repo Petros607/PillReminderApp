@@ -121,6 +121,54 @@ class MedicineMenuFragment : Fragment() {
                 nameEdit.error = getString(R.string.error_empty_name)
                 return@setOnClickListener
             }
+            // Валидация названия лекарства (1-25 символов)
+            when {
+                name.isEmpty() -> {
+                    nameEdit.error = getString(R.string.error_empty_name)
+                    return@setOnClickListener
+                }
+                name.length > 25 -> {
+                    nameEdit.error = getString(R.string.error_name_too_long)
+                    return@setOnClickListener
+                }
+                !name.matches(Regex("^[\\p{L}0-9 .'-]+$")) -> {
+                    nameEdit.error = getString(R.string.error_invalid_name)
+                    return@setOnClickListener
+                }
+            }
+
+            // Валидация активного вещества (1-50 символов)
+            when {
+                substance.isEmpty() -> {
+                    substanceEdit.error = getString(R.string.error_empty_substance)
+                    return@setOnClickListener
+                }
+                substance.length > 50 -> {
+                    substanceEdit.error = getString(R.string.error_substance_too_long)
+                    return@setOnClickListener
+                }
+                !substance.matches(Regex("^[\\p{L}0-9 .'-]+$")) -> {
+                    substanceEdit.error = getString(R.string.error_invalid_substance)
+                    return@setOnClickListener
+                }
+            }
+
+            // Валидация производителя (1-50 символов)
+            when {
+                firm.isEmpty() -> {
+                    firmEdit.error = getString(R.string.error_empty_manufacturer)
+                    return@setOnClickListener
+                }
+                firm.length > 50 -> {
+                    firmEdit.error = getString(R.string.error_manufacturer_too_long)
+                    return@setOnClickListener
+                }
+                !firm.matches(Regex("^[\\p{L}0-9 .'-]+$")) -> {
+                    firmEdit.error = getString(R.string.error_invalid_manufacturer)
+                    return@setOnClickListener
+                }
+            }
+
 
             val med = if (medicine == null) {
                 Medicine(name = name, substance = substance, manufacturer = firm, dosageForm = dosageForm)

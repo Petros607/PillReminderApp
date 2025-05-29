@@ -65,7 +65,6 @@ class AddReminderFinalFragment : DialogFragment() {
                     .get(HomeViewModel::class.java)
 
                 homeViewModel.loadReminders()
-                dialog?.dismiss()
             }
         }
 
@@ -191,11 +190,11 @@ class AddReminderFinalFragment : DialogFragment() {
                 .setPositiveButton("OK") { dialog, _ ->
                     val input = inputEditText.text.toString()
                     val doseValue = input.toFloatOrNull()
-                    if (doseValue != null && doseValue <= 10f) {
+                    if (doseValue != null && doseValue <= 10f && doseValue > 0f) {
                         doseTextView.text = input
                         doseTextView.setTextColor(resources.getColor(R.color.black, null))
                     } else {
-                        Toast.makeText(requireContext(), "Доза должна быть числом не больше 10", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Доза должна быть числом от 0.1 до 10.0", Toast.LENGTH_SHORT).show()
                     }
                     dialog.dismiss()
                 }
