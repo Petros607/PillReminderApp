@@ -14,6 +14,9 @@ interface MedicineDao {
     @Query("SELECT * FROM medicines WHERE id = :id")
     suspend fun getById(id: Long): Medicine?
 
+    @Query("SELECT * FROM medicines WHERE LOWER(name) = LOWER(:name) LIMIT 1")
+    suspend fun getByName(name: String): Medicine?
+
     @Query("SELECT * FROM medicines WHERE name LIKE '%' || :query || '%'")
     suspend fun searchMedicines(query: String): List<Medicine>
 

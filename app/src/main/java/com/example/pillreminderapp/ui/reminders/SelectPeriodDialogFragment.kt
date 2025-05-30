@@ -25,7 +25,7 @@ class SelectPeriodDialogFragment : DialogFragment() {
     private lateinit var endDateTextView: TextView
     private var startDate: Calendar? = null
     private var endDate: Calendar? = null
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat("dd.MM.YYYY", Locale.getDefault())
 
     private var medicineId: Long = -1
     private lateinit var periodType: PeriodType
@@ -107,21 +107,6 @@ class SelectPeriodDialogFragment : DialogFragment() {
                 return@setOnClickListener
             }
 
-//            // Формируем сообщение с данными
-//            val message = buildString {
-//                append("💊 Лекарство ID: $medicineId\n")
-//                append("📆 Тип периода: $periodType\n")
-//                append("📝 Описание: $description\n")
-//                append("📅 Даты напоминаний:\n")
-//                reminderDates.forEach { date ->
-//                    append("- $date\n")
-//                }
-//            }
-//
-////          Показываем Toast
-//            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-
-//
             val finalDialog = AddReminderFinalFragment.newInstance(
                 selectedMedicineId = medicineId,
                 description = description,
@@ -130,7 +115,6 @@ class SelectPeriodDialogFragment : DialogFragment() {
             finalDialog.show(parentFragmentManager, "DialogAddReminderFinal")
             dismiss()
         }
-
 
         return AlertDialog.Builder(requireContext())
             .setView(view)

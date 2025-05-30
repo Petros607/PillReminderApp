@@ -13,7 +13,9 @@ import com.example.pillreminderapp.R
 import com.example.pillreminderapp.SystemInfoActivity
 import com.example.pillreminderapp.databinding.FragmentMedicineMenuBinding
 import com.example.pillreminderapp.db.AppDatabase
+import com.example.pillreminderapp.db.entities.ActiveSubstance
 import com.example.pillreminderapp.db.entities.DosageForm
+import com.example.pillreminderapp.db.entities.Manufacturer
 import com.example.pillreminderapp.db.entities.Medicine
 import com.example.pillreminderapp.ui.adapters.MedicineAdapter
 import kotlinx.coroutines.launch
@@ -87,20 +89,29 @@ class MedicineMenuFragment : Fragment() {
 
         val title = dialogView.findViewById<TextView>(R.id.dialog_add_medicine_title)
         val nameEdit = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_medicine_name)
-        val substanceEdit = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_active_substance)
-        val firmEdit = dialogView.findViewById<EditText>(R.id.dialog_add_medicine_edit_firm)
+        val substanceSpinner = dialogView.findViewById<Spinner>(R.id.dialog_add_medicine_spinner_substance)
+        val firmSpinner = dialogView.findViewById<Spinner>(R.id.dialog_add_medicine_spinner_firm)
         val spinner = dialogView.findViewById<Spinner>(R.id.dialog_add_medicine_spinner_form)
 
         val adapter = createDosageFormAdapter()
         spinner.adapter = adapter
+
+        val substanceAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, ActiveSubstance.values())
+        val firmAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, Manufacturer.values())
+        substanceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        firmAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        substanceSpinner.adapter = substanceAdapter
+        firmSpinner.adapter = firmAdapter
+
 
         if (medicine == null) {
             title.text = getString(R.string.add_medicine)
         } else {
             title.text = getString(R.string.edit_medicine)
             nameEdit.setText(medicine.name)
-            substanceEdit.setText(medicine.substance)
-            firmEdit.setText(medicine.manufacturer)
+            substanceSpinner.setSelection(ActiveSubstance.values().indexOf(medicine.substance))
+            firmSpinner.setSelection(Manufacturer.values().indexOf(medicine.manufacturer))
             spinner.setSelection(DosageForm.values().indexOf(medicine.dosageForm))
         }
 
@@ -113,8 +124,8 @@ class MedicineMenuFragment : Fragment() {
 
         dialogView.findViewById<Button>(R.id.dialog_add_medicine_btn_save).setOnClickListener {
             val name = nameEdit.text.toString().trim()
-            val substance = substanceEdit.text.toString().trim()
-            val firm = firmEdit.text.toString().trim()
+            val substance = substanceSpinner.selectedItem as ActiveSubstance
+            val manufacturer = firmSpinner.selectedItem as Manufacturer
             val dosageForm = spinner.selectedItem as DosageForm
 
             if (name.isEmpty()) {
@@ -137,47 +148,27 @@ class MedicineMenuFragment : Fragment() {
                 }
             }
 
-            // Валидация активного вещества (1-50 символов)
-            when {
-                substance.isEmpty() -> {
-                    substanceEdit.error = getString(R.string.error_empty_substance)
-                    return@setOnClickListener
-                }
-                substance.length > 50 -> {
-                    substanceEdit.error = getString(R.string.error_substance_too_long)
-                    return@setOnClickListener
-                }
-                !substance.matches(Regex("^[\\p{L}0-9 .'-]+$")) -> {
-                    substanceEdit.error = getString(R.string.error_invalid_substance)
-                    return@setOnClickListener
-                }
-            }
-
-            // Валидация производителя (1-50 символов)
-            when {
-                firm.isEmpty() -> {
-                    firmEdit.error = getString(R.string.error_empty_manufacturer)
-                    return@setOnClickListener
-                }
-                firm.length > 50 -> {
-                    firmEdit.error = getString(R.string.error_manufacturer_too_long)
-                    return@setOnClickListener
-                }
-                !firm.matches(Regex("^[\\p{L}0-9 .'-]+$")) -> {
-                    firmEdit.error = getString(R.string.error_invalid_manufacturer)
-                    return@setOnClickListener
-                }
-            }
-
-
             val med = if (medicine == null) {
-                Medicine(name = name, substance = substance, manufacturer = firm, dosageForm = dosageForm)
+                Medicine(name = name, substance = substance, manufacturer = manufacturer, dosageForm = dosageForm)
             } else {
-                medicine.copy(name = name, substance = substance, manufacturer = firm, dosageForm = dosageForm)
+                medicine.copy(name = name, substance = substance, manufacturer = manufacturer, dosageForm = dosageForm)
             }
 
             lifecycleScope.launch {
                 val db = AppDatabase.getInstance(requireContext())
+                val existing = db.medicineDao().getByName(name)
+
+                if (medicine == null && existing != null) {
+                    nameEdit.error = getString(R.string.error_name_not_unique) // Добавь эту строку в strings.xml
+                    return@launch
+                }
+
+                val med = if (medicine == null) {
+                    Medicine(name = name, substance = substance, manufacturer = manufacturer, dosageForm = dosageForm)
+                } else {
+                    medicine.copy(name = name, substance = substance, manufacturer = manufacturer, dosageForm = dosageForm)
+                }
+
                 if (medicine == null) {
                     db.medicineDao().insert(med)
                     Log.d("Table medicine", "medicine сохранен!")
@@ -185,8 +176,9 @@ class MedicineMenuFragment : Fragment() {
                     db.medicineDao().update(med)
                 }
                 loadMedicines()
+                dialog.dismiss()
             }
-            dialog.dismiss()
+
         }
 
         dialog.show()
