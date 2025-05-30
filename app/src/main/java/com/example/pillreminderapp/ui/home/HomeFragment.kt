@@ -166,23 +166,28 @@ class HomeFragment : Fragment() {
         val btnMarkTaken = dialogView.findViewById<Button>(R.id.btnMarkTaken)
         val tvMissed = dialogView.findViewById<TextView>(R.id.tvMissed)
 
-        // Установка текста
         lifecycleScope.launch {
             val medicine = AppDatabase.getInstance(requireContext())
                 .medicineDao()
                 .getById(reminder.medicineId)
 
             val medicineName = medicine?.name ?: "Без названия"
-            tvTitle.text = medicineName
+            val medicineManufacturer = medicine?.manufacturer.toString()
+            tvTitle.text = "${medicineName} (${medicineManufacturer})"
 
         }
 
-        val date = Date(reminder.intakeTime)
-        val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-        formatter.timeZone = TimeZone.getTimeZone("UTC") // ⬅️ важно!
+        val reminderTime = Date(reminder.intakeTime)
+        val reminderDate = Date(reminder.intakeDate)
 
-        val formattedTime = formatter.format(date)
-        tvSubtitle.text = "Время: $formattedTime"
+        var formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+        formatter.timeZone = TimeZone.getTimeZone("UTC") // ⬅️ важно!
+        val formattedTime = formatter.format(reminderTime)
+
+        formatter = SimpleDateFormat("dd:MM:YYYY", Locale.getDefault())
+        val formattedDate = formatter.format(reminderDate)
+
+        tvSubtitle.text = "${formattedTime} (${formattedDate})"
 
         val tvDescription = dialogView.findViewById<TextView>(R.id.tvDescription)
         val tvNotificationTime = dialogView.findViewById<TextView>(R.id.tvNotificationTime)
