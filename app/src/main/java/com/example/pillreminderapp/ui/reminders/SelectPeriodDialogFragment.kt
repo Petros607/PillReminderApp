@@ -25,7 +25,7 @@ class SelectPeriodDialogFragment : DialogFragment() {
     private lateinit var endDateTextView: TextView
     private var startDate: Calendar? = null
     private var endDate: Calendar? = null
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat("dd.MM.YYYY", Locale.getDefault())
 
     private var medicineId: Long = -1
     private lateinit var periodType: PeriodType

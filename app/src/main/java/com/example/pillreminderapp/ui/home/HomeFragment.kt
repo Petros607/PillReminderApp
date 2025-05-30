@@ -141,6 +141,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         // Запускаем загрузку данных из БД через ViewModel
         homeViewModel.loadReminders()
     }
@@ -184,7 +185,7 @@ class HomeFragment : Fragment() {
         formatter.timeZone = TimeZone.getTimeZone("UTC") // ⬅️ важно!
         val formattedTime = formatter.format(reminderTime)
 
-        formatter = SimpleDateFormat("dd:MM:YYYY", Locale.getDefault())
+        formatter = SimpleDateFormat("dd.MM.YYYY", Locale.getDefault())
         val formattedDate = formatter.format(reminderDate)
 
         tvSubtitle.text = "${formattedTime} (${formattedDate})"
@@ -224,12 +225,26 @@ class HomeFragment : Fragment() {
         }
 
         btnEdit.setOnClickListener {
-            val medicineDao = AppDatabase.getInstance(requireContext()).medicineDao()
-//        val medicine = medicineDao.getById(reminder.medicineId)!!
-//        cancelNotification(reminder, medicine)
-//        scheduleNotification(reminder, medicine)
-            val dialog = EditReminderDialog.newInstance(reminder.id)
-            dialog.show(parentFragmentManager, "EditReminderDialog")
+            val newDialog = EditReminderDialog.newInstance(reminder.id).apply {
+                setOnReminderEditedListener(object : EditReminderDialog.OnReminderEditedListener {
+                    override fun onReminderEdited(updatedReminder: Reminder) {
+                        lifecycleScope.launch {
+                            val db = AppDatabase.getInstance(requireContext())
+                            db.reminderDao().update(updatedReminder)
+
+                            val medicineDao = db.medicineDao()
+                            val medicine = medicineDao.getById(updatedReminder.medicineId)!!
+
+                            cancelNotification(updatedReminder, medicine)
+                            scheduleNotification(updatedReminder, medicine)
+
+                            homeViewModel.loadReminders()
+                        }
+                    }
+                })
+            }
+            dialog.dismiss()
+            newDialog.show(parentFragmentManager, "EditReminderDialog")
         }
 
         btnMarkTaken.setOnClickListener {
@@ -253,7 +268,7 @@ class HomeFragment : Fragment() {
         dialog.show()
     }
 
-    private fun cancelNotification(reminder: Reminder, medicine: Medicine) {
+    public fun cancelNotification(reminder: Reminder, medicine: Medicine) {
         val intent = Intent(requireContext(), ReminderReceiver::class.java)
             .apply {
                 putExtra("ID", reminder.id.toInt())
@@ -262,7 +277,7 @@ class HomeFragment : Fragment() {
                 putExtra("time", getTimeStringFromReminder(reminder))
                 putExtra("medicineName", medicine.name)
         }
-        Log.d("AddReminderFinalFragment", "Scheduling notification with requestCode: ${reminder.id.toInt()}")
+        Log.d("SchedulingNotification", "Scheduling notification with requestCode: ${reminder.id.toInt()}")
 
         val pendingIntent = PendingIntent.getBroadcast(
             requireContext(),
@@ -276,7 +291,7 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun scheduleNotification(reminder: Reminder, medicine: Medicine) {
+    public fun scheduleNotification(reminder: Reminder, medicine: Medicine) {
         val intent = Intent(requireContext(), ReminderReceiver::class.java)
             .apply {
                 putExtra("ID", reminder.id.toInt())
@@ -285,7 +300,7 @@ class HomeFragment : Fragment() {
                 putExtra("time", getTimeStringFromReminder(reminder))
                 putExtra("medicineName", medicine.name)
             }
-        Log.d("AddReminderFinalFragment", "Scheduling notification with requestCode: ${reminder.id.toInt()}")
+        Log.d("SchedulingNotification", "Scheduling notification with requestCode: ${reminder.id.toInt()}")
 
 
         val pendingIntent = PendingIntent.getBroadcast(
