@@ -14,8 +14,6 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -26,7 +24,6 @@ import com.example.pillreminderapp.R
 import java.time.LocalDate
 import androidx.lifecycle.lifecycleScope
 import com.example.pillreminderapp.db.AppDatabase
-import com.example.pillreminderapp.db.entities.DosageForm
 import com.example.pillreminderapp.db.entities.Medicine
 import com.example.pillreminderapp.db.entities.Reminder
 import com.example.pillreminderapp.reminder.ReminderReceiver
